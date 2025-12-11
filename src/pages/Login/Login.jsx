@@ -90,8 +90,9 @@ const Login = () => {
            ============================================================ */}
         <div className="w-full md:w-1/2 p-8 md:p-12 bg-base-100">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-base-content">Login</h2>
-            <p className="text-base-content/60 mt-1">Enter your details to continue</p>
+            {/* UPDATED: Changed text color to primary (Brand Color) */}
+            <h2 className="text-3xl font-bold text-primary">Login</h2>
+            <p className="text-base-content/60 mt-1">Access your dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -118,6 +119,7 @@ const Login = () => {
             <div className="form-control">
               <label className="label">
                   <span className="label-text font-medium">Password</span>
+                  <a href="#" className="label-text-alt link link-hover text-primary font-semibold">Forgot password?</a>
               </label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-3.5 text-base-content/40" />
@@ -146,7 +148,7 @@ const Login = () => {
             </div>
           </form>
 
-          <div className="divider text-sm text-base-content/50 my-6">OR LOGIN WITH</div>
+          <div className="divider text-sm text-base-content/50 my-6">OR CONTINUE WITH</div>
 
           {/* Social Login */}
           <button 

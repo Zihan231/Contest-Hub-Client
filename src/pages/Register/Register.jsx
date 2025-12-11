@@ -98,7 +98,7 @@ const Register = () => {
            ============================================================ */}
         <div className="w-full md:w-1/2 p-8 md:p-12 bg-base-100">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-base-content">Create Account</h2>
+            <h2 className="text-3xl font-bold text-primary">Create Account</h2>
             <p className="text-base-content/60 mt-1">Start your journey today</p>
           </div>
 

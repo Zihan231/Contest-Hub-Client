@@ -6,7 +6,7 @@ const HomePage = () => {
     return (
         <div>
             <NavBar></NavBar>
-            {/* <Banner></Banner> */}
+            <Banner></Banner>
         </div>
     );
 };

@@ -6,6 +6,7 @@ import Login from "../pages/Login/Login";
 import ErrorPage from "../components/ErrorPage/ErrorPage";
 import ContestDetails from "../components/ContestDetails/ContestDetails";
 import AllContests from "../pages/All-Contests/AllContests";
+import Leaderboard from "../pages/Leaderboard/Leaderboard";
 
 const router = createBrowserRouter([
     {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
             {
                 path: '/all-contests',
                 Component: AllContests,
+            },
+            {
+                path: '/leaderboard',
+                Component: Leaderboard,
             }
         ]
     },

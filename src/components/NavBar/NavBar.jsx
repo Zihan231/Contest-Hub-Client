@@ -86,6 +86,26 @@ const NavBar = () => {
                     Leaderboard
                 </NavLink>
             </li>
+            <li>
+                <NavLink
+                    to="/contact"
+                    className={({ isActive }) =>
+                        isActive ? "font-bold text-primary active" : "font-medium hover:text-primary"
+                    }
+                >
+                    Contact Us
+                </NavLink>
+            </li>
+            <li>
+                <NavLink
+                    to="/about"
+                    className={({ isActive }) =>
+                        isActive ? "font-bold text-primary active" : "font-medium hover:text-primary"
+                    }
+                >
+                    About Us
+                </NavLink>
+            </li>
         </>
     );
 

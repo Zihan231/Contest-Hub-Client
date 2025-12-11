@@ -8,6 +8,7 @@ import ContestDetails from "../components/ContestDetails/ContestDetails";
 import AllContests from "../pages/All-Contests/AllContests";
 import Leaderboard from "../pages/Leaderboard/Leaderboard";
 import AboutUs from "../pages/aboutUs/aboutUs";
+import ContactUs from "../pages/ContactUs/ContactUs";
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
             {
                 path: '/about',
                 Component: AboutUs
+            },
+            {
+                path: '/contact',
+                Component: ContactUs
             }
         ]
     },

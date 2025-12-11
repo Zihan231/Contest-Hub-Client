@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, Links } from "react-router";
 import { FaUsers, FaArrowRight, FaTrophy } from "react-icons/fa";
 
 const PopularContests = () => {
@@ -114,9 +114,9 @@ const PopularContests = () => {
                 {/* Details Button [cite: 57] */}
                 <div className="card-actions justify-end mt-auto">
                     {/* Link logic to be added later as requested */}
-                    <button className="btn btn-primary btn-sm w-full gap-2">
+                    <Link to='/contest/details/id' className="btn btn-primary btn-sm w-full gap-2">
                         View Details <FaArrowRight />
-                    </button>
+                    </Link>
                 </div>
               </div>
             </div>

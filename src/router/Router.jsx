@@ -4,6 +4,8 @@ import HomeLayout from "../layouts/HomeLayout/HomeLayout";
 import Register from "../pages/Register/Register";
 import Login from "../pages/Login/Login";
 import ErrorPage from "../components/ErrorPage/ErrorPage";
+import ContestDetails from "../components/ContestDetails/ContestDetails";
+import AllContests from "../pages/All-Contests/AllContests";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +23,14 @@ const router = createBrowserRouter([
             {
                 path: '/login',
                 Component: Login,
+            },
+            {
+                path: '/contest/details/:id',
+                Component: ContestDetails,
+            },
+            {
+                path: '/all-contests',
+                Component: AllContests,
             }
         ]
     },

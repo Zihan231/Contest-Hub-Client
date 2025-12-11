@@ -9,6 +9,7 @@ import AllContests from "../pages/All-Contests/AllContests";
 import Leaderboard from "../pages/Leaderboard/Leaderboard";
 import AboutUs from "../pages/aboutUs/aboutUs";
 import ContactUs from "../pages/ContactUs/ContactUs";
+import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 
 const router = createBrowserRouter([
     {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
             {
                 path: '/contact',
                 Component: ContactUs
+            },
+            {
+                path: '/privacy',
+                Component: PrivacyPolicy
             }
         ]
     },

@@ -24,17 +24,8 @@ const NavBar = () => {
             prev === "contesthubLight" ? "contesthubDark" : "contesthubLight"
         );
     };
-
-    // // ---------------------------------------------------------------------------
-    // // 2. Authentication Mock
-    // // ---------------------------------------------------------------------------
-    // // ⚠️ TOGGLE THIS TO 'null' TO SEE THE LOGIN/REGISTER BUTTONS
-    // // const user = {
-    // //     displayName: "Zihan Islam",
-    // //     photoURL: "https://i.pravatar.cc/150?img=12",
-    // // };
-    // const user = null; // <--- Uncomment this line to test the "Logged Out" view
-
+    
+    // Handle LogOut
     const handleLogout = () => {
         Swal.fire({
             title: "Are you sure?",
@@ -53,7 +44,7 @@ const NavBar = () => {
         });
     };
 
-    
+
     // ---------------------------------------------------------------------------
     // 3. Navigation Links 
     // ---------------------------------------------------------------------------
@@ -160,19 +151,18 @@ const NavBar = () => {
                     <FaMoon className="swap-on h-5 w-5 fill-current" />
                 </label>
 
-                {/* Auth Logic: If user exists, show Profile. [cite_start]If NOT, show Login/Register [cite: 153, 155, 156] */}
                 {user ? (
                     <div className="dropdown dropdown-end">
                         <div
                             tabIndex={0}
                             role="button"
                             className="btn btn-ghost btn-circle avatar ring-2 ring-primary ring-offset-2 ring-offset-base-100"
-                            title={user.displayName}
+                            title={user?.displayName}
                         >
                             <div className="w-10 rounded-full">
                                 <img
                                     alt="User Profile"
-                                    src={user.photoURL || "https://i.pravatar.cc/150"}
+                                    src={user?.photoURL || "https://i.pravatar.cc/150"}
                                 />
                             </div>
                         </div>
@@ -183,7 +173,7 @@ const NavBar = () => {
                         >
                             <li className="menu-title px-4 py-2">
                                 <span className="block truncate text-base-content font-bold">
-                                    {user.displayName}
+                                    {user?.displayName}
                                 </span>
                             </li>
                             <li>

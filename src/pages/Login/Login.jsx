@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaTrophy } from "react-icons/fa";
 import Swal from "sweetalert2";
 import AuthContext from "../../context/AuthContext/AuthContext";
+import Loading from "../../components/Loading/Loading";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,7 +12,7 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const reDirectTo = location.state?.from || '/';
-  
+  const [loading, setLoading] = useState(false);
   // 1. Setup React Hook Form
   const {
     register,
@@ -21,11 +22,10 @@ const Login = () => {
 
   // 2. Form Submission Handler
   const onSubmit = (data) => {
+    setLoading(true);
     console.log("Login Data:", data);
     const { email, password } = data;
 
-    // Mock Login Logic
-    // In real app: signInWithEmailAndPassword(auth, data.email, data.password)
     signInWithEmailPass(email, password)
       .then(() => {
         Swal.fire({
@@ -43,19 +43,25 @@ const Login = () => {
             icon: "success",
             background: "var(--color-base-100)",
             color: "var(--color-base-content)"
-          }).then(navigate(reDirectTo, { replace: true }));
+          }).then(() => {
+            navigate(reDirectTo, { replace: true })
+          });
         });
       })
       .catch(() => {
+        // --- UPDATED ERROR ALERT ---
         Swal.fire({
-          title: "Login Failed !!!",
+          title: "Login Failed",
+          text: "Invalid email or password.", // Clean error message
           icon: "error",
-          draggable: true
-        })
-      }).finally(() => {
-        // SetIsLogin(false);
-      }
-      );
+          confirmButtonColor: "var(--color-error)", // Matches theme error color
+          background: "var(--color-base-100)",      // Matches other alerts
+          color: "var(--color-base-content)"        // Matches other alerts
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleGoogleLogin = () => {
@@ -79,125 +85,131 @@ const Login = () => {
       });
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 relative overflow-hidden py-10 px-4">
+    <div>
+      {
+        loading ? (<Loading></Loading>) : (
+          <div className="min-h-screen flex items-center justify-center bg-base-200 relative overflow-hidden py-10 px-4">
 
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] opacity-40 animate-pulse"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[120px] opacity-40 animate-pulse delay-1000"></div>
-      </div>
+            {/* Background Ambience */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+              <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] opacity-40 animate-pulse"></div>
+              <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[120px] opacity-40 animate-pulse delay-1000"></div>
+            </div>
 
-      <div className="card w-full max-w-4xl bg-base-100/80 backdrop-blur-xl shadow-2xl overflow-hidden md:flex-row z-10 border border-white/20">
+            <div className="card w-full max-w-4xl bg-base-100/80 backdrop-blur-xl shadow-2xl overflow-hidden md:flex-row z-10 border border-white/20">
 
-        {/* ============================================================
+              {/* ============================================================
             LEFT SIDE: WELCOME BACK VISUALS
            ============================================================ */}
-        <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 overflow-hidden">
+              <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 overflow-hidden">
 
-          {/* Deep Mesh Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-secondary via-blue-900 to-primary opacity-90"></div>
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+                {/* Deep Mesh Gradient Background */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-secondary via-blue-900 to-primary opacity-90"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
 
-          {/* Content Container */}
-          <div className="relative z-10 flex flex-col items-center text-center">
+                {/* Content Container */}
+                <div className="relative z-10 flex flex-col items-center text-center">
 
-            {/* Floating Trophy Logo (Brand Identity) */}
-            <div className="mb-8 p-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-2xl animate-float">
-              <FaTrophy className="text-6xl text-yellow-400 drop-shadow-lg" />
-            </div>
+                  {/* Floating Trophy Logo (Brand Identity) */}
+                  <div className="mb-8 p-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-2xl animate-float">
+                    <FaTrophy className="text-6xl text-yellow-400 drop-shadow-lg" />
+                  </div>
 
-            {/* Typography */}
-            <h2 className="text-4xl font-extrabold text-white mb-4 tracking-tight">
-              Welcome <span className="text-yellow-300">Back</span>
-            </h2>
-            <p className="text-blue-100 text-lg max-w-xs leading-relaxed">
-              Access your dashboard, manage your contests, and track your victories.
-            </p>
-          </div>
-        </div>
+                  {/* Typography */}
+                  <h2 className="text-4xl font-extrabold text-white mb-4 tracking-tight">
+                    Welcome <span className="text-yellow-300">Back</span>
+                  </h2>
+                  <p className="text-blue-100 text-lg max-w-xs leading-relaxed">
+                    Access your dashboard, manage your contests, and track your victories.
+                  </p>
+                </div>
+              </div>
 
-        {/* ============================================================
+              {/* ============================================================
             RIGHT SIDE: LOGIN FORM
            ============================================================ */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 bg-base-100">
-          <div className="text-center mb-8">
-            {/* UPDATED: Changed text color to primary (Brand Color) */}
-            <h2 className="text-3xl font-bold text-primary">Login</h2>
-            <p className="text-base-content/60 mt-1">Access your dashboard</p>
-          </div>
+              <div className="w-full md:w-1/2 p-8 md:p-12 bg-base-100">
+                <div className="text-center mb-8">
+                  {/* UPDATED: Changed text color to primary (Brand Color) */}
+                  <h2 className="text-3xl font-bold text-primary">Login</h2>
+                  <p className="text-base-content/60 mt-1">Access your dashboard</p>
+                </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-            {/* Email Input */}
-            <div className="form-control">
-              <label className="label"><span className="label-text font-medium">Email Address</span></label>
-              <div className="relative">
-                <FaEnvelope className="absolute left-3 top-3.5 text-base-content/40" />
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  className={`input input-bordered w-full pl-10 focus:input-primary ${errors.email ? 'input-error' : ''}`}
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
-                  })}
-                />
-              </div>
-              {errors.email && <span className="text-error text-xs mt-1">{errors.email.message}</span>}
-            </div>
+                  {/* Email Input */}
+                  <div className="form-control">
+                    <label className="label"><span className="label-text font-medium">Email Address</span></label>
+                    <div className="relative">
+                      <FaEnvelope className="absolute left-3 top-3.5 text-base-content/40" />
+                      <input
+                        type="email"
+                        placeholder="name@example.com"
+                        className={`input input-bordered w-full pl-10 focus:input-primary ${errors.email ? 'input-error' : ''}`}
+                        {...register("email", {
+                          required: "Email is required",
+                          pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
+                        })}
+                      />
+                    </div>
+                    {errors.email && <span className="text-error text-xs mt-1">{errors.email.message}</span>}
+                  </div>
 
-            {/* Password Input */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Password</span>
-                <a href="#" className="label-text-alt link link-hover text-primary font-semibold">Forgot password?</a>
-              </label>
-              <div className="relative">
-                <FaLock className="absolute left-3 top-3.5 text-base-content/40" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className={`input input-bordered w-full pl-10 focus:input-primary ${errors.password ? 'input-error' : ''}`}
-                  {...register("password", { required: "Password is required" })}
-                />
+                  {/* Password Input */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium">Password</span>
+                      <a href="#" className="label-text-alt link link-hover text-primary font-semibold">Forgot password?</a>
+                    </label>
+                    <div className="relative">
+                      <FaLock className="absolute left-3 top-3.5 text-base-content/40" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className={`input input-bordered w-full pl-10 focus:input-primary ${errors.password ? 'input-error' : ''}`}
+                        {...register("password", { required: "Password is required" })}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3.5 text-base-content/40 hover:text-primary transition-colors"
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    {errors.password && <span className="text-error text-xs mt-1">{errors.password.message}</span>}
+                  </div>
+
+                  {/* Login Button */}
+                  <div className="form-control mt-6">
+                    <button type="submit" className="btn btn-primary w-full shadow-lg shadow-primary/30 text-lg">
+                      Login
+                    </button>
+                  </div>
+                </form>
+
+                <div className="divider text-sm text-base-content/50 my-6">OR CONTINUE WITH</div>
+
+                {/* Social Login */}
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-base-content/40 hover:text-primary transition-colors"
+                  onClick={handleGoogleLogin}
+                  className="btn btn-outline w-full gap-2 hover:bg-base-content hover:text-base-100 transition-all"
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  <FaGoogle /> Google
                 </button>
+
+                {/* Register Link */}
+                <p className="text-center mt-8 text-sm text-base-content/70">
+                  Don't have an account?{" "}
+                  <Link to="/register" className="text-primary font-bold hover:underline">
+                    Register here
+                  </Link>
+                </p>
               </div>
-              {errors.password && <span className="text-error text-xs mt-1">{errors.password.message}</span>}
             </div>
-
-            {/* Login Button */}
-            <div className="form-control mt-6">
-              <button type="submit" className="btn btn-primary w-full shadow-lg shadow-primary/30 text-lg">
-                Login
-              </button>
-            </div>
-          </form>
-
-          <div className="divider text-sm text-base-content/50 my-6">OR CONTINUE WITH</div>
-
-          {/* Social Login */}
-          <button
-            onClick={handleGoogleLogin}
-            className="btn btn-outline w-full gap-2 hover:bg-base-content hover:text-base-100 transition-all"
-          >
-            <FaGoogle /> Google
-          </button>
-
-          {/* Register Link */}
-          <p className="text-center mt-8 text-sm text-base-content/70">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-bold hover:underline">
-              Register here
-            </Link>
-          </p>
-        </div>
-      </div>
+          </div>
+        )
+      }
     </div>
   );
 };

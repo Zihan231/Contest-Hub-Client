@@ -7,11 +7,11 @@ import AuthContext from "../../context/AuthContext/AuthContext";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { signInWithGoogle, SetUser } = useContext(AuthContext);
+  const { signInWithGoogle, SetUser, signInWithEmailPass } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const reDirectTo = location.state?.from || '/';
-
+  
   // 1. Setup React Hook Form
   const {
     register,
@@ -22,28 +22,40 @@ const Login = () => {
   // 2. Form Submission Handler
   const onSubmit = (data) => {
     console.log("Login Data:", data);
+    const { email, password } = data;
 
     // Mock Login Logic
     // In real app: signInWithEmailAndPassword(auth, data.email, data.password)
-
-    Swal.fire({
-      title: "Signing In...",
-      text: "Verifying your credentials",
-      icon: "info",
-      timer: 1500,
-      showConfirmButton: false,
-      background: "var(--color-base-100)",
-      color: "var(--color-base-content)"
-    }).then(() => {
-      Swal.fire({
-        title: "Welcome Back!",
-        text: "Login successful",
-        icon: "success",
-        background: "var(--color-base-100)",
-        color: "var(--color-base-content)"
-      });
-      navigate("/"); // Redirect to Home or Dashboard
-    });
+    signInWithEmailPass(email, password)
+      .then(() => {
+        Swal.fire({
+          title: "Signing In...",
+          text: "Verifying your credentials",
+          icon: "info",
+          timer: 1500,
+          showConfirmButton: false,
+          background: "var(--color-base-100)",
+          color: "var(--color-base-content)"
+        }).then(() => {
+          Swal.fire({
+            title: "Welcome Back!",
+            text: "Login successful",
+            icon: "success",
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)"
+          }).then(navigate(reDirectTo, { replace: true }));
+        });
+      })
+      .catch(() => {
+        Swal.fire({
+          title: "Login Failed !!!",
+          icon: "error",
+          draggable: true
+        })
+      }).finally(() => {
+        // SetIsLogin(false);
+      }
+      );
   };
 
   const handleGoogleLogin = () => {

@@ -11,7 +11,7 @@ const ContactUs = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    // console.log("Message Data:", data);
+    console.log("Message Data:", data);
     
     // Success Feedback
     Swal.fire({
@@ -41,7 +41,7 @@ const ContactUs = () => {
                 Support & Inquiries
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-base-content mb-4">
-                Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Touch</span>
+                Get in <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">Touch</span>
             </h1>
             <p className="text-lg opacity-60 max-w-2xl mx-auto">
                 Have a question about a contest? Need help with your account? Our team is ready to assist you.

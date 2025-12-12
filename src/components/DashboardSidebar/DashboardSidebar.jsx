@@ -66,7 +66,7 @@ const DashboardSidebar = () => {
       </div>
 
       {/* 2. NAVIGATION LINKS */}
-      <nav className="flex-grow p-4 space-y-1 overflow-y-auto custom-scrollbar">
+      <nav className="grow p-4 space-y-1 overflow-y-auto custom-scrollbar">
         <p className="px-4 text-xs font-bold text-base-content/40 uppercase tracking-widest mb-2 mt-4">Menu</p>
 
         {navItems.map((item) => (

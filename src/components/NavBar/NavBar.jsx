@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router"; 
 import { FaBars, FaSun, FaMoon, FaTrophy } from "react-icons/fa"; 
 import Swal from "sweetalert2"; 
+import AuthContext from "../../context/AuthContext/AuthContext";
 
 const NavBar = () => {
     const navigate = useNavigate();
-
+    const { user,logout } = useContext(AuthContext);
     // ---------------------------------------------------------------------------
     // 1. Theme Management 
     // ---------------------------------------------------------------------------
@@ -24,15 +25,15 @@ const NavBar = () => {
         );
     };
 
-    // ---------------------------------------------------------------------------
-    // 2. Authentication Mock
-    // ---------------------------------------------------------------------------
-    // ⚠️ TOGGLE THIS TO 'null' TO SEE THE LOGIN/REGISTER BUTTONS
-    // const user = {
-    //     displayName: "Zihan Islam",
-    //     photoURL: "https://i.pravatar.cc/150?img=12",
-    // };
-    const user = null; // <--- Uncomment this line to test the "Logged Out" view
+    // // ---------------------------------------------------------------------------
+    // // 2. Authentication Mock
+    // // ---------------------------------------------------------------------------
+    // // ⚠️ TOGGLE THIS TO 'null' TO SEE THE LOGIN/REGISTER BUTTONS
+    // // const user = {
+    // //     displayName: "Zihan Islam",
+    // //     photoURL: "https://i.pravatar.cc/150?img=12",
+    // // };
+    // const user = null; // <--- Uncomment this line to test the "Logged Out" view
 
     const handleLogout = () => {
         Swal.fire({
@@ -45,6 +46,7 @@ const NavBar = () => {
             confirmButtonText: "Yes, logout!"
         }).then((result) => {
             if (result.isConfirmed) {
+                
                 navigate("/");
                 Swal.fire("Logged Out!", "See you soon.", "success");
             }

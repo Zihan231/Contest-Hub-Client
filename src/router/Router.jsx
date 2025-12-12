@@ -11,6 +11,7 @@ import AboutUs from "../pages/aboutUs/aboutUs";
 import ContactUs from "../pages/ContactUs/ContactUs";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import DashboardLayout from "../layouts/DashboardLayout/DashboardLayout";
+import PrivateRoute from "./PrivateRoute/PrivateRoute";
 
 const router = createBrowserRouter([
     {
@@ -31,7 +32,9 @@ const router = createBrowserRouter([
             },
             {
                 path: '/contest/details/:id',
-                Component: ContestDetails,
+                element: <PrivateRoute>
+                    <ContestDetails></ContestDetails>
+                </PrivateRoute>
             },
             {
                 path: '/all-contests',

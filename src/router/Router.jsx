@@ -10,6 +10,7 @@ import Leaderboard from "../pages/Leaderboard/Leaderboard";
 import AboutUs from "../pages/aboutUs/aboutUs";
 import ContactUs from "../pages/ContactUs/ContactUs";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
+import DashboardLayout from "../layouts/DashboardLayout/DashboardLayout";
 
 const router = createBrowserRouter([
     {
@@ -52,6 +53,12 @@ const router = createBrowserRouter([
                 path: '/privacy',
                 Component: PrivacyPolicy
             }
+        ]
+    }, {
+        path: "/dashboard",
+        Component: DashboardLayout,
+        children: [
+
         ]
     },
     {

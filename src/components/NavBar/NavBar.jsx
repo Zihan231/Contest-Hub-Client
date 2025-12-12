@@ -28,11 +28,11 @@ const NavBar = () => {
     // 2. Authentication Mock
     // ---------------------------------------------------------------------------
     // ⚠️ TOGGLE THIS TO 'null' TO SEE THE LOGIN/REGISTER BUTTONS
-    // const user = {
-    //     displayName: "Zihan Islam",
-    //     photoURL: "https://i.pravatar.cc/150?img=12",
-    // };
-    const user = null; // <--- Uncomment this line to test the "Logged Out" view
+    const user = {
+        displayName: "Zihan Islam",
+        photoURL: "https://i.pravatar.cc/150?img=12",
+    };
+    // const user = null; // <--- Uncomment this line to test the "Logged Out" view
 
     const handleLogout = () => {
         Swal.fire({

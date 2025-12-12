@@ -40,20 +40,18 @@ const AuthProvider = ({ children }) => {
     const createUser = (email, password) => {
         return createUserWithEmailAndPassword(auth, email, password);
     };
-    
-
     // Update user profile manually
     const Update = (data) => {
         return updateProfile(auth.currentUser, data);
     };
     // Auth state listener
-        useEffect(() => {
-            const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-                SetUser(currentUser);
-                setIsLoading(false);
-            });
-            return () => unSubscribe();
-        }, []);
+    useEffect(() => {
+        const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
+            SetUser(currentUser);
+            setIsLoading(false);
+        });
+        return () => unSubscribe();
+    }, []);
     const userInfo = {
         user,
         SetUser,
@@ -62,12 +60,12 @@ const AuthProvider = ({ children }) => {
         signInWithGoogle,
         createUser,
         Update,
-        isLoading
+        isLoading,
     }
     return (
-        <AuthContext value={userInfo}>
+        <AuthContext.Provider value={userInfo}>
             {children}
-        </AuthContext>
+        </AuthContext.Provider>
     );
 };
 

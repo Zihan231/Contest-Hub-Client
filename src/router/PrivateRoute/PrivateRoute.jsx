@@ -5,7 +5,6 @@ import { HashLoader } from "react-spinners";
 
 const PrivateRoute = ({ children }) => {
     const location = useLocation();
-    console.log(location);
     const { user, isLoading } = useContext(AuthContext);
     if (isLoading) {
         return (

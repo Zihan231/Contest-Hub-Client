@@ -1,15 +1,16 @@
 import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaTrophy } from "react-icons/fa";
 import Swal from "sweetalert2";
 import AuthContext from "../../context/AuthContext/AuthContext";
 
 const Login = () => {
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithGoogle, SetUser } = useContext(AuthContext);
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  const reDirectTo = location.state?.from || '/';
 
   // 1. Setup React Hook Form
   const {
@@ -46,25 +47,25 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-      signInWithGoogle()
-        .then((result) => {
-          Swal.fire({
-            title: "Account created successfully !",
-            icon: "success",
-            draggable: true
-          }).then(
-            // navigate(reDirectTo, { replace: true })
-          );
-          SetUser?.(result.user);
+    signInWithGoogle()
+      .then((result) => {
+        Swal.fire({
+          title: "Account created successfully !",
+          icon: "success",
+          draggable: true
+        }).then(
+          navigate(reDirectTo, { replace: true })
+        );
+        SetUser?.(result.user);
+      })
+      .catch(() => {
+        Swal.fire({
+          title: "Sign Up Failed !!!",
+          icon: "error",
+          draggable: true
         })
-        .catch(() => {
-          Swal.fire({
-            title: "Sign Up Failed !!!",
-            icon: "error",
-            draggable: true
-          })
-        });
-    };
+      });
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 relative overflow-hidden py-10 px-4">
 

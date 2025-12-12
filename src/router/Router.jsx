@@ -57,9 +57,12 @@ const router = createBrowserRouter([
                 Component: PrivacyPolicy
             }
         ]
-    }, {
+    },
+    {
         path: "/dashboard",
-        Component: DashboardLayout,
+        element: <PrivateRoute>
+            <DashboardLayout />
+        </PrivateRoute>,
         children: [
 
         ]

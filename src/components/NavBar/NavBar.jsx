@@ -46,7 +46,7 @@ const NavBar = () => {
             confirmButtonText: "Yes, logout!"
         }).then((result) => {
             if (result.isConfirmed) {
-                
+                logout();
                 navigate("/");
                 Swal.fire("Logged Out!", "See you soon.", "success");
             }

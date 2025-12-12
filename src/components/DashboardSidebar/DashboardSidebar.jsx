@@ -1,12 +1,17 @@
-import { NavLink, Link } from "react-router";
-import { 
+import { NavLink, Link, useNavigate } from "react-router";
+import {
   FaHome, FaGamepad, FaTrophy, FaUser, FaCog, FaSignOutAlt, FaBolt,
-  FaPlusCircle, FaListAlt, FaClipboardCheck, FaUsersCog, FaTasks 
+  FaPlusCircle, FaListAlt, FaClipboardCheck, FaUsersCog, FaTasks
 } from "react-icons/fa";
 import Swal from "sweetalert2";
+import { useContext } from "react";
+import AuthContext from "../../context/AuthContext/AuthContext";
 
 const DashboardSidebar = () => {
-  
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+
   // Function to close the drawer on mobile when a link is clicked
   const closeDrawer = () => {
     const drawerCheckbox = document.getElementById("dashboard-drawer");
@@ -18,13 +23,19 @@ const DashboardSidebar = () => {
   const handleLogout = () => {
     closeDrawer(); // Close drawer first if on mobile
     Swal.fire({
-        title: "Log out?",
-        text: "You will be returned to the home screen.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "var(--color-primary)",
-        cancelButtonColor: "var(--color-neutral)",
-        confirmButtonText: "Yes, log out"
+      title: "Log out?",
+      text: "You will be returned to the home screen.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "var(--color-primary)",
+      cancelButtonColor: "var(--color-neutral)",
+      confirmButtonText: "Yes, log out"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        navigate("/");
+        Swal.fire("Logged Out!", "See you soon.", "success");
+      }
     });
   };
 
@@ -43,21 +54,21 @@ const DashboardSidebar = () => {
   return (
     // Fixed width w-64 ensures it doesn't take 80% of screen unless screen is very small
     <aside className="w-64 min-h-screen bg-base-100 border-r border-base-200 flex flex-col transition-all duration-300">
-      
+
       {/* 1. BRAND LOGO */}
       <div className="h-20 flex items-center px-8 border-b border-base-200 shrink-0">
         <Link to="/" onClick={closeDrawer} className="flex items-center gap-2 font-black text-2xl tracking-tight">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-content">
-                <FaBolt className="text-sm" />
-            </div>
-            <span>Contest<span className="text-primary">Hub</span></span>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-content">
+            <FaBolt className="text-sm" />
+          </div>
+          <span>Contest<span className="text-primary">Hub</span></span>
         </Link>
       </div>
 
       {/* 2. NAVIGATION LINKS */}
       <nav className="flex-grow p-4 space-y-1 overflow-y-auto custom-scrollbar">
         <p className="px-4 text-xs font-bold text-base-content/40 uppercase tracking-widest mb-2 mt-4">Menu</p>
-        
+
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -66,22 +77,22 @@ const DashboardSidebar = () => {
             onClick={closeDrawer} // <--- THIS FIXES THE MOBILE ISSUE
             className={({ isActive }) => `
               flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group
-              ${isActive 
-                ? "bg-primary text-primary-content shadow-lg shadow-primary/30 font-bold" 
+              ${isActive
+                ? "bg-primary text-primary-content shadow-lg shadow-primary/30 font-bold"
                 : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
               }
             `}
           >
             {({ isActive }) => (
-                <>
-                    <span className={`text-lg ${isActive ? "scale-110" : "group-hover:scale-110"} transition-transform`}>
-                        {item.icon}
-                    </span>
-                    <span className="truncate">{item.label}</span>
-                    {isActive && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-                    )}
-                </>
+              <>
+                <span className={`text-lg ${isActive ? "scale-110" : "group-hover:scale-110"} transition-transform`}>
+                  {item.icon}
+                </span>
+                <span className="truncate">{item.label}</span>
+                {isActive && (
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
+                )}
+              </>
             )}
           </NavLink>
         ))}
@@ -90,22 +101,22 @@ const DashboardSidebar = () => {
       {/* 3. USER PROFILE & LOGOUT */}
       <div className="p-4 border-t border-base-200 bg-base-100/50 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="avatar online">
-                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="User" />
-                </div>
+          <div className="avatar online">
+            <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <img src="https://i.pravatar.cc/150?img=11" alt="User" />
             </div>
-            <div className="overflow-hidden">
-                <h4 className="font-bold text-sm truncate">Zihaul Islam</h4>
-                <p className="text-xs opacity-50 truncate">User Role</p>
-            </div>
+          </div>
+          <div className="overflow-hidden">
+            <h4 className="font-bold text-sm truncate">Zihaul Islam</h4>
+            <p className="text-xs opacity-50 truncate">User Role</p>
+          </div>
         </div>
-        
-        <button 
-            onClick={handleLogout}
-            className="btn btn-outline btn-error btn-sm w-full gap-2 hover:shadow-red-500/20"
+
+        <button
+          onClick={handleLogout}
+          className="btn btn-outline btn-error btn-sm w-full gap-2 hover:shadow-red-500/20"
         >
-            <FaSignOutAlt /> Logout
+          <FaSignOutAlt /> Logout
         </button>
       </div>
 

@@ -104,7 +104,7 @@ const Login = () => {
               <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 overflow-hidden">
 
                 {/* Deep Mesh Gradient Background */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-secondary via-blue-900 to-primary opacity-90"></div>
+                <div className="absolute inset-0 bg-linear-to-tr from-secondary via-blue-900 to-primary opacity-90"></div>
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
 
                 {/* Content Container */}

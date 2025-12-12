@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import { FaBars } from "react-icons/fa";
 import DashboardSidebar from "../../components/DashboardSidebar/DashboardSidebar";
 
+
 const DashboardLayout = () => {
   return (
     <div className="drawer lg:drawer-open bg-base-200">

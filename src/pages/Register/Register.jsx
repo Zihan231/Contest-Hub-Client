@@ -121,7 +121,7 @@ const Register = () => {
             LEFT SIDE: PREMIUM VISUALS
            ============================================================ */}
               <div className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-12 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary via-blue-900 to-secondary opacity-90"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-primary via-blue-900 to-secondary opacity-90"></div>
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
 
                 <div className="relative z-10 flex flex-col items-center text-center">

@@ -8,7 +8,8 @@ import { useContext } from "react";
 import AuthContext from "../../context/AuthContext/AuthContext";
 
 const DashboardSidebar = () => {
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
+  console.log(user);
   const navigate = useNavigate();
 
 
@@ -103,11 +104,11 @@ const DashboardSidebar = () => {
         <div className="flex items-center gap-3 mb-4 px-2">
           <div className="avatar online">
             <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <img src="https://i.pravatar.cc/150?img=11" alt="User" />
+              <img src={user ? user?.photoURL : "https://i.pravatar.cc/150?img=11"} alt="User" />
             </div>
           </div>
           <div className="overflow-hidden">
-            <h4 className="font-bold text-sm truncate">Zihaul Islam</h4>
+            <h4 className="font-bold text-sm truncate">{user ? user?.displayName : "No Name Found"}</h4>
             <p className="text-xs opacity-50 truncate">User Role</p>
           </div>
         </div>

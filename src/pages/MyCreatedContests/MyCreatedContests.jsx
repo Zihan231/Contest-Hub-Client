@@ -26,7 +26,7 @@ const MyCreatedContests = () => {
             title: contest.title,
             category: contest.category,
             prize: contest.prize,
-            deadline: new Date(contest.deadline), 
+            deadline: new Date(contest.deadline),
             description: contest.description
         });
         document.getElementById('edit_modal').showModal();
@@ -36,7 +36,7 @@ const MyCreatedContests = () => {
         const formattedDate = data.deadline.toISOString().split('T')[0];
         const finalData = { ...data, deadline: formattedDate };
 
-        const updatedList = contests.map(c => 
+        const updatedList = contests.map(c =>
             c.id === editingContest.id ? { ...c, ...finalData } : c
         );
         setContests(updatedList);
@@ -82,7 +82,7 @@ const MyCreatedContests = () => {
 
     return (
         <div className="w-full space-y-6">
-            
+
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -125,8 +125,8 @@ const MyCreatedContests = () => {
                                         </td>
                                         <td className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Link 
-                                                    to={`/dashboard/contest/${contest.id}/submissions`}
+                                                <Link
+                                                    to={`/dashboard/creator/contest/task/${contest.id}`}
                                                     className={`btn btn-sm btn-ghost text-primary tooltip tooltip-bottom ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-20' : ''}`}
                                                     data-tip="See Submissions"
                                                 >
@@ -165,26 +165,26 @@ const MyCreatedContests = () => {
                                     <h3 className="font-bold text-lg leading-tight">{contest.title}</h3>
                                     {renderStatusBadge(contest.status)}
                                 </div>
-                                
+
                                 {/* Details Grid */}
                                 <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
                                     <div className="flex items-center gap-2 opacity-70">
-                                        <FaCalendarAlt className="text-primary" /> 
+                                        <FaCalendarAlt className="text-primary" />
                                         <span className="font-mono">{contest.deadline}</span>
                                     </div>
                                     <div className="flex items-center gap-2 font-bold text-success justify-end">
                                         <FaTrophy /> ${contest.prize}
                                     </div>
                                     <div className="flex items-center gap-2 opacity-70 col-span-2">
-                                        <FaUserFriends className="text-info" /> 
+                                        <FaUserFriends className="text-info" />
                                         {contest.status === 'Confirmed' ? `${contest.submissionCount} Submissions` : 'No submissions yet'}
                                     </div>
                                 </div>
 
                                 {/* Actions Footer */}
                                 <div className="card-actions justify-end border-t border-base-200 pt-3">
-                                    <Link 
-                                        to={`/dashboard/contest/${contest.id}/submissions`}
+                                    <Link
+                                        to={`/dashboard/creator/contest/task/${contest.id}`}
                                         className={`btn btn-sm btn-outline btn-primary ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-50' : ''}`}
                                     >
                                         Submissions
@@ -211,9 +211,9 @@ const MyCreatedContests = () => {
             <dialog id="edit_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box overflow-visible">
                     <h3 className="font-bold text-lg mb-4">Edit Contest</h3>
-                    
+
                     <form onSubmit={handleSubmit(handleUpdate)} className="space-y-4">
-                        
+
                         <div className="form-control">
                             <label className="label"><span className="label-text">Contest Title</span></label>
                             <input type="text" className="input input-bordered w-full" {...register("title", { required: true })} />

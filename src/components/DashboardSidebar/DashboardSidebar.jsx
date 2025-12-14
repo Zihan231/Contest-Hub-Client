@@ -13,7 +13,7 @@ const DashboardSidebar = () => {
   const navigate = useNavigate();
 
   // --- THEME STATE MANAGEMENT ---
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "contesthubLight");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -21,7 +21,7 @@ const DashboardSidebar = () => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === "light" ? "dark" : "light");
+    setTheme(prev => prev === "contesthubLight" ? "contesthubDark" : "contesthubLight");
   };
 
   // Mobile Drawer Close Helper

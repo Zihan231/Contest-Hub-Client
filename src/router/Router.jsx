@@ -20,6 +20,7 @@ import ManageUsers from "../pages/ManageUsers/ManageUsers";
 import MyCreatedContests from "../pages/MyCreatedContests/MyCreatedContests";
 import TaskSubmissions from "../pages/TaskSubmissions/TaskSubmissions";
 import MyParticipatedContests from "../pages/MyParticipatedContests/MyParticipatedContests";
+import TestAnimation from "../Test/TestAnimation/TestAnimation";
 
 const router = createBrowserRouter([
     {
@@ -109,6 +110,10 @@ const router = createBrowserRouter([
     {
         path: '*',
         Component: ErrorPage
+    },
+    {
+        path: '/test',
+        Component: TestAnimation
     }
 ]);
 

@@ -1,8 +1,9 @@
-import { Link, Links } from "react-router";
-import { FaUsers, FaArrowRight, FaTrophy } from "react-icons/fa";
+import { Link } from "react-router";
+import { FaUsers, FaArrowRight } from "react-icons/fa";
+// 1. Import motion
+import { motion } from "framer-motion";
 
 const PopularContests = () => {
-  // 1. Demo Data (Based on your provided format)
   const contests = [
     {
       id: 1,
@@ -18,7 +19,7 @@ const PopularContests = () => {
       contestName: "UI/UX Dark Mode Challenge",
       image: "https://images.unsplash.com/photo-1555421689-491a97ff2040?q=80&w=2070&auto=format&fit=crop",
       description: "Design a visually stunning dark mode interface for a fintech dashboard. Focus on contrast ratios and accessibility.",
-      participationCount: 340, // Highest count
+      participationCount: 340,
       entryFee: 15,
       prizeMoney: 500,
     },
@@ -60,7 +61,6 @@ const PopularContests = () => {
     }
   ];
 
-  // 2. Logic: Sort by Participation Count (Desc) & Take Top 6 [cite: 50, 51]
   const popularContests = [...contests]
     .sort((a, b) => b.participationCount - a.participationCount)
     .slice(0, 6);
@@ -69,22 +69,40 @@ const PopularContests = () => {
     <section className="py-20 px-4 bg-base-200">
       <div className="max-w-7xl mx-auto">
         
-        {/* Section Header */}
-        <div className="text-center mb-12">
+        {/* Header Animation */}
+        <motion.div 
+          initial={{ opacity: 0, y: -50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }} 
+          className="text-center mb-12"
+        >
           <h2 className="text-4xl font-bold mb-4 text-base-content">
             Popular <span className="text-primary">Contests</span>
           </h2>
           <p className="text-base-content/70 max-w-2xl mx-auto">
             Join the most trending challenges on our platform. Compete with hundreds of creators and claim your victory.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Contests Grid */}
+        {/* Contests Grid with Staggered Animation */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {popularContests.map((contest) => (
-            <div 
-                key={contest.id} 
-                className="card bg-base-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-base-300 group overflow-hidden"
+          {popularContests.map((contest, index) => (
+            <motion.div 
+              key={contest.id}
+              
+              // 2. Add Animation Props
+              initial={{ opacity: 0, scale: 0.9, y: 50 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ 
+                duration: 0.5, 
+                delay: index * 0.1, // Stagger effect: Card 1 waits 0s, Card 2 waits 0.1s, etc.
+                ease: "easeOut"
+              }}
+              viewport={{ once: false }}
+              whileHover={{ y: -10 }} // Hover effect handled by Framer Motion now
+              
+              className="card bg-base-100 shadow-xl border border-base-300 group overflow-hidden"
             >
               {/* Card Image */}
               <figure className="relative h-48 overflow-hidden">
@@ -94,7 +112,7 @@ const PopularContests = () => {
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute top-4 right-4 bg-base-100/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1">
-                    <FaUsers className="text-primary" /> {contest.participationCount} People
+                  <FaUsers className="text-primary" /> {contest.participationCount} People
                 </div>
               </figure>
 
@@ -104,31 +122,34 @@ const PopularContests = () => {
                   {contest.contestName}
                 </h3>
                 
-                {/* Short Description (Truncated) [cite: 56] */}
                 <p className="text-base-content/70 text-sm mb-4">
                   {contest.description.length > 80 
                     ? contest.description.slice(0, 80) + "..." 
                     : contest.description}
                 </p>
 
-                {/* Details Button [cite: 57] */}
                 <div className="card-actions justify-end mt-auto">
-                    {/* Link logic to be added later as requested */}
-                    <Link to='/contest/details/id' className="btn btn-primary btn-sm w-full gap-2">
-                        View Details <FaArrowRight />
-                    </Link>
+                  <Link to='/contest/details/id' className="btn btn-primary btn-sm w-full gap-2">
+                    View Details <FaArrowRight />
+                  </Link>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {/* Show All Button [cite: 59] */}
-        <div className="text-center mt-12">
+        {/* Button Animation */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-center mt-12"
+        >
           <Link to="/all-contests" className="btn btn-outline btn-sm px-10 gap-2 hover:bg-primary hover:text-white transition-all">
             Show All Contests
           </Link>
-        </div>
+        </motion.div>
 
       </div>
     </section>

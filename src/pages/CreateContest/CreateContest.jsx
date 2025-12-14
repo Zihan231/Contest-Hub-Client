@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form'; // 1. Import Controller
 import { 
     FaTrophy, FaImage, FaDollarSign, FaCalendarAlt, 
     FaAlignLeft, FaTags, FaLightbulb 
 } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+
+// 2. Import React Datepicker & CSS
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const CreateContest = () => {
     const [loading, setLoading] = useState(false);
@@ -13,6 +17,7 @@ const CreateContest = () => {
         register, 
         handleSubmit, 
         watch,
+        control, // 3. Get 'control' for the DatePicker
         formState: { errors } 
     } = useForm();
 
@@ -20,9 +25,9 @@ const CreateContest = () => {
 
     const onSubmit = async (data) => {
         setLoading(true);
+        // Note: data.deadline will now be a proper Date object
         console.log("Contest Data:", data);
 
-        // Simulation of API call
         setTimeout(() => {
             Swal.fire({
                 title: "Contest Created!",
@@ -124,17 +129,31 @@ const CreateContest = () => {
                                 </div>
                             </div>
 
-                            {/* Deadline */}
+                            {/* --- React DatePicker Implementation --- */}
                             <div className="form-control">
                                 <label className="label font-bold text-base-content/70">Deadline</label>
                                 <div className="relative">
-                                    <FaCalendarAlt className="absolute left-3 top-3.5 text-base-content/30" />
-                                    <input 
-                                        type="date" 
-                                        className="input input-bordered w-full pl-10 focus:input-primary"
-                                        {...register("deadline", { required: "Deadline is required" })}
+                                    {/* Icon is absolutely positioned over the input */}
+                                    <FaCalendarAlt className="absolute left-3 top-3.5 text-base-content/30 z-10 pointer-events-none" />
+                                    
+                                    <Controller
+                                        control={control}
+                                        name="deadline"
+                                        rules={{ required: "Deadline is required" }}
+                                        render={({ field }) => (
+                                            <DatePicker
+                                                selected={field.value}
+                                                onChange={(date) => field.onChange(date)}
+                                                className="input input-bordered w-full pl-10 focus:input-primary cursor-pointer"
+                                                placeholderText="Select deadline"
+                                                dateFormat="MMMM d, yyyy"
+                                                minDate={new Date()} // Disable past dates
+                                                showTimeSelect={false} // Change to true if you want time
+                                            />
+                                        )}
                                     />
                                 </div>
+                                {errors.deadline && <span className="text-error text-xs mt-1">{errors.deadline.message}</span>}
                             </div>
                         </div>
 

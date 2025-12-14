@@ -14,6 +14,7 @@ import DashboardLayout from "../layouts/DashboardLayout/DashboardLayout";
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import OverView from "../pages/OverView/OverView";
 import CreateContest from "../pages/CreateContest/CreateContest";
+import MyProfile from "../pages/MyProfile/MyProfile";
 
 const router = createBrowserRouter([
     {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
                 path: "creator/create",
                 Component: CreateContest
             },
+            {
+                path: "profile",
+                Component: MyProfile
+            }
         ]
     },
     {

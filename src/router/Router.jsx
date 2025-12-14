@@ -12,6 +12,8 @@ import ContactUs from "../pages/ContactUs/ContactUs";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import DashboardLayout from "../layouts/DashboardLayout/DashboardLayout";
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
+import OverView from "../pages/OverView/OverView";
+import CreateContest from "../pages/CreateContest/CreateContest";
 
 const router = createBrowserRouter([
     {
@@ -64,7 +66,14 @@ const router = createBrowserRouter([
             <DashboardLayout />
         </PrivateRoute>,
         children: [
-
+            {
+                index: true,
+                Component: OverView
+            },
+            {
+                path: "creator/create",
+                Component: CreateContest
+            },
         ]
     },
     {

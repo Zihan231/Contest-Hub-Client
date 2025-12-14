@@ -49,21 +49,35 @@ const ManageUsers = () => {
         });
     };
 
+    // Helper to render role badge
+    const renderRoleBadge = (role) => (
+        <div className={`badge badge-sm font-bold gap-2 p-3
+            ${role === 'Admin' ? 'badge-error text-white' : ''}
+            ${role === 'Creator' ? 'badge-primary text-white' : ''}
+            ${role === 'User' ? 'badge-ghost' : ''}
+        `}>
+            {role === 'Admin' && <FaUserShield className="text-xs" />}
+            {role === 'Creator' && <FaPaintBrush className="text-xs" />}
+            {role === 'User' && <FaUser className="text-xs" />}
+            {role}
+        </div>
+    );
+
     return (
         <div className="w-full space-y-8">
             
             {/* --- HEADER & STATS --- */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-black text-base-content">Manage Users</h2>
                     <p className="text-base-content/60">Control user access and permissions.</p>
                 </div>
 
-                {/* Stats Widget */}
-                <div className="stats shadow bg-base-100 border border-base-200 w-full md:w-auto">
+                {/* Stats Widget - Responsive Layout */}
+                <div className="stats stats-vertical lg:stats-horizontal shadow bg-base-100 border border-base-200 w-full xl:w-auto">
                     
                     {/* Total Admins */}
-                    <div className="stat place-items-center px-4 py-2">
+                    <div className="stat place-items-center px-4 py-3 lg:py-2">
                         <div className="stat-title text-xs font-bold uppercase tracking-wider opacity-60 flex gap-1 items-center">
                            <FaUserShield /> Admins
                         </div>
@@ -71,7 +85,7 @@ const ManageUsers = () => {
                     </div>
                     
                     {/* Total Creators */}
-                    <div className="stat place-items-center px-4 py-2 border-l border-base-200">
+                    <div className="stat place-items-center px-4 py-3 lg:py-2 lg:border-l border-base-200">
                         <div className="stat-title text-xs font-bold uppercase tracking-wider opacity-60 flex gap-1 items-center">
                             <FaPaintBrush /> Creators
                         </div>
@@ -79,7 +93,7 @@ const ManageUsers = () => {
                     </div>
 
                     {/* Total Users */}
-                    <div className="stat place-items-center px-4 py-2 border-l border-base-200">
+                    <div className="stat place-items-center px-4 py-3 lg:py-2 lg:border-l border-base-200">
                         <div className="stat-title text-xs font-bold uppercase tracking-wider opacity-60 flex gap-1 items-center">
                             <FaUser /> Users
                         </div>
@@ -89,11 +103,10 @@ const ManageUsers = () => {
                 </div>
             </div>
 
-            {/* --- USERS TABLE --- */}
-            <div className="card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
+            {/* --- DESKTOP VIEW: TABLE --- */}
+            <div className="hidden md:block card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="table table-zebra w-full">
-                        
                         {/* Table Head */}
                         <thead className="bg-base-200/50 text-base-content/60">
                             <tr>
@@ -110,7 +123,6 @@ const ManageUsers = () => {
                             {users.map((user, index) => (
                                 <tr key={user.id}>
                                     <th>{index + 1}</th>
-                                    
                                     {/* User Info (Avatar + Name) */}
                                     <td>
                                         <div className="flex items-center gap-3">
@@ -125,29 +137,15 @@ const ManageUsers = () => {
                                             </div>
                                         </div>
                                     </td>
-
                                     {/* Email */}
                                     <td className="font-mono text-xs">{user.email}</td>
-
                                     {/* Current Role Badge */}
-                                    <td>
-                                        <div className={`badge badge-sm font-bold gap-2 p-3
-                                            ${user.role === 'Admin' ? 'badge-error text-white' : ''}
-                                            ${user.role === 'Creator' ? 'badge-primary text-white' : ''}
-                                            ${user.role === 'User' ? 'badge-ghost' : ''}
-                                        `}>
-                                            {user.role === 'Admin' && <FaUserShield className="text-xs" />}
-                                            {user.role === 'Creator' && <FaPaintBrush className="text-xs" />}
-                                            {user.role === 'User' && <FaUser className="text-xs" />}
-                                            {user.role}
-                                        </div>
-                                    </td>
-
+                                    <td>{renderRoleBadge(user.role)}</td>
                                     {/* Action: Change Role Dropdown */}
                                     <td>
                                         <select 
                                             className="select select-bordered select-xs w-full max-w-xs focus:select-primary font-semibold"
-                                            value={user.role} // Controlled component
+                                            value={user.role} 
                                             onChange={(e) => handleRoleChange(user.id, e.target.value, user.role)}
                                         >
                                             <option value="User">User</option>
@@ -155,13 +153,54 @@ const ManageUsers = () => {
                                             <option value="Admin">Admin</option>
                                         </select>
                                     </td>
-
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            {/* --- MOBILE VIEW: CARDS --- */}
+            <div className="md:hidden grid grid-cols-1 gap-4">
+                {users.map((user) => (
+                    <div key={user.id} className="card bg-base-100 shadow-md border border-base-200">
+                        <div className="card-body p-5">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="avatar">
+                                    <div className="mask mask-squircle w-12 h-12">
+                                        <img src={user.photo} alt={user.name} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg leading-tight">{user.name}</h3>
+                                    <p className="text-xs opacity-50 font-mono">{user.email}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex justify-between items-center border-t border-base-200 pt-4 mt-2">
+                                <div className="text-sm font-semibold opacity-70">Role:</div>
+                                {renderRoleBadge(user.role)}
+                            </div>
+
+                            <div className="form-control mt-4">
+                                <label className="label">
+                                    <span className="label-text text-xs font-bold uppercase tracking-wider opacity-60">Change Role</span>
+                                </label>
+                                <select 
+                                    className="select select-bordered select-sm w-full focus:select-primary font-semibold"
+                                    value={user.role} 
+                                    onChange={(e) => handleRoleChange(user.id, e.target.value, user.role)}
+                                >
+                                    <option value="User">User</option>
+                                    <option value="Creator">Creator</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
         </div>
     );
 };

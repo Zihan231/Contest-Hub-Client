@@ -4,12 +4,12 @@ import Swal from 'sweetalert2';
 import { useForm } from 'react-hook-form';
 
 const MyParticipatedContests = () => {
-    // --- MOCK DATA ---
+    // --- MOCK DATA (Updated with Images) ---
     const [participations, setParticipations] = useState([
-        { id: 1, title: "Mobile App UI Design", deadline: "2025-12-30", paymentStatus: "Paid", taskStatus: "Pending", prize: "$500" },
-        { id: 2, title: "Python AI Chatbot", deadline: "2025-12-25", paymentStatus: "Pending", taskStatus: "Pending", prize: "$1200" },
-        { id: 3, title: "Logo Design for Tech", deadline: "2025-12-28", paymentStatus: "Paid", taskStatus: "Submitted", prize: "$300" },
-        { id: 4, title: "SEO Article Writing", deadline: "2026-01-05", paymentStatus: "Paid", taskStatus: "Pending", prize: "$150" },
+        { id: 101, image: "https://picsum.photos/id/20/100/100", title: "Mobile App UI Design", deadline: "2025-12-30", paymentStatus: "Paid", taskStatus: "Pending", prize: "$500" },
+        { id: 102, image: "https://picsum.photos/id/36/100/100", title: "Python AI Chatbot", deadline: "2025-12-25", paymentStatus: "Pending", taskStatus: "Pending", prize: "$1200" },
+        { id: 103, image: "https://picsum.photos/id/60/100/100", title: "Logo Design for Tech", deadline: "2025-12-28", paymentStatus: "Paid", taskStatus: "Submitted", prize: "$300" },
+        { id: 104, image: "https://picsum.photos/id/96/100/100", title: "SEO Article Writing", deadline: "2026-01-05", paymentStatus: "Paid", taskStatus: "Pending", prize: "$150" },
     ]);
 
     const [selectedContest, setSelectedContest] = useState(null);
@@ -24,6 +24,7 @@ const MyParticipatedContests = () => {
     const handlePay = (contestId) => {
         console.log(`Redirecting to payment for contest ${contestId}`);
         // Add your payment logic here (Stripe/Gateway)
+        Swal.fire("Placeholder", "Redirecting to payment gateway...", "info");
     };
 
     // 2. Open Submit Modal
@@ -36,7 +37,7 @@ const MyParticipatedContests = () => {
     // 3. Submit Task
     const handleTaskSubmit = (data) => {
         // API Call to submit task...
-        console.log("Task Data:", data);
+        console.log("Task Data for contest " + selectedContest.id, data);
 
         // Update Local State
         const updatedList = participations.map(p => 
@@ -75,6 +76,7 @@ const MyParticipatedContests = () => {
                     <table className="table table-zebra w-full">
                         <thead className="bg-base-200/50 text-base-content/60">
                             <tr>
+                                <th>#</th> {/* Index Header */}
                                 <th>Contest Info</th>
                                 <th>Deadline</th>
                                 <th>Payment</th>
@@ -83,14 +85,28 @@ const MyParticipatedContests = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sortedParticipations.map((contest) => (
+                            {sortedParticipations.map((contest, index) => (
                                 <tr key={contest.id}>
+                                    {/* Index Column */}
+                                    <th>{index + 1}</th>
+                                    
+                                    {/* Contest Info (Image + Title) */}
                                     <td>
-                                        <div className="font-bold">{contest.title}</div>
-                                        <div className="text-xs text-success flex items-center gap-1">
-                                            <FaTrophy className="text-[10px]" /> Prize: {contest.prize}
+                                        <div className="flex items-center gap-3">
+                                            <div className="avatar">
+                                                <div className="mask mask-squircle w-12 h-12 bg-base-300">
+                                                    <img src={contest.image} alt={contest.title} />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="font-bold">{contest.title}</div>
+                                                <div className="text-xs text-success flex items-center gap-1">
+                                                    <FaTrophy className="text-[10px]" /> Prize: {contest.prize}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
+
                                     <td className="font-mono text-xs">{contest.deadline}</td>
                                     
                                     {/* Payment Status */}
@@ -119,7 +135,6 @@ const MyParticipatedContests = () => {
 
                                     {/* Actions */}
                                     <td className="text-right">
-                                        {/* Logic: If Unpaid -> Show Pay. If Paid & Pending -> Show Submit. Else -> Complete */}
                                         {contest.paymentStatus === 'Pending' ? (
                                             <button 
                                                 onClick={() => handlePay(contest.id)} 
@@ -149,18 +164,30 @@ const MyParticipatedContests = () => {
 
             {/* --- VIEW 2: MOBILE CARDS --- */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
-                {sortedParticipations.map((contest) => (
+                {sortedParticipations.map((contest, index) => (
                     <div key={contest.id} className="card bg-base-100 shadow-md border border-base-200">
                         <div className="card-body p-5">
                             
-                            {/* Header */}
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="font-bold text-lg leading-tight">{contest.title}</h3>
-                                <div className="badge badge-ghost text-xs font-mono">{contest.deadline}</div>
+                            {/* Header with Index, Image, Title & Deadline */}
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center gap-3 flex-1">
+                                     {/* Index Badge */}
+                                     <div className="badge badge-ghost font-mono">#{index + 1}</div>
+                                    {/* Image */}
+                                    <div className="avatar">
+                                        <div className="mask mask-squircle w-10 h-10 bg-base-300">
+                                            <img src={contest.image} alt={contest.title} />
+                                        </div>
+                                    </div>
+                                    {/* Title */}
+                                    <h3 className="font-bold text-lg leading-tight">{contest.title}</h3>
+                                </div>
+                                {/* Deadline */}
+                                <div className="badge badge-ghost text-xs font-mono whitespace-nowrap ml-2">{contest.deadline}</div>
                             </div>
 
                             {/* Details */}
-                            <div className="flex items-center justify-between text-sm mb-4">
+                            <div className="flex items-center justify-between text-sm mb-4 border-t border-base-200 pt-3">
                                 <span className="text-success font-bold flex items-center gap-1">
                                     <FaTrophy /> {contest.prize}
                                 </span>
@@ -177,7 +204,7 @@ const MyParticipatedContests = () => {
                             {/* Status Bar */}
                             <div className="w-full bg-base-200 rounded-full h-2 mb-4 overflow-hidden">
                                 <div 
-                                    className={`h-full ${contest.taskStatus === 'Submitted' ? 'bg-success w-full' : 'bg-primary w-1/2'}`}
+                                    className={`h-full transition-all duration-500 ${contest.taskStatus === 'Submitted' ? 'bg-success w-full' : 'bg-primary w-1/2'}`}
                                 ></div>
                             </div>
 

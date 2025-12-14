@@ -8,18 +8,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const MyCreatedContests = () => {
-    // --- STATE ---
+    // ... (State and Handlers remain the same) ...
     const [contests, setContests] = useState([
         { id: 1, title: "Modern Logo Design", deadline: "2025-12-30", prize: "200", category: "Image Design", description: "Create a minimal logo.", status: "Pending", submissionCount: 0 },
         { id: 2, title: "Gaming Blog Post", deadline: "2025-11-10", prize: "50", category: "Article Writing", description: "Write 500 words about RPGs.", status: "Confirmed", submissionCount: 12 },
         { id: 3, title: "E-commerce UI Kit", deadline: "2025-10-05", prize: "500", category: "Image Design", description: "Mobile app UI for shop.", status: "Rejected", submissionCount: 0 },
         { id: 4, title: "Social Media Banner", deadline: "2025-12-01", prize: "100", category: "Digital Advertisement", description: "Facebook banner ads.", status: "Pending", submissionCount: 0 },
+        { id: 5, title: "Video Intro", deadline: "2025-12-01", prize: "100", category: "Digital Advertisement", description: "Facebook banner ads.", status: "Pending", submissionCount: 0 },
     ]);
 
     const [editingContest, setEditingContest] = useState(null);
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm();
 
-    // --- HANDLERS ---
     const openEditModal = (contest) => {
         setEditingContest(contest);
         reset({
@@ -35,54 +35,34 @@ const MyCreatedContests = () => {
     const handleUpdate = (data) => {
         const formattedDate = data.deadline.toISOString().split('T')[0];
         const finalData = { ...data, deadline: formattedDate };
-
-        const updatedList = contests.map(c =>
+        const updatedList = contests.map(c => 
             c.id === editingContest.id ? { ...c, ...finalData } : c
         );
         setContests(updatedList);
-
         document.getElementById('edit_modal').close();
-        Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "Contest updated successfully",
-            showConfirmButton: false,
-            timer: 1500
-        });
+        Swal.fire({ position: "top-end", icon: "success", title: "Updated successfully", showConfirmButton: false, timer: 1500 });
     };
 
     const handleDelete = (id) => {
         Swal.fire({
-            title: "Delete Contest?",
-            text: "You can only delete pending contests. This action cannot be undone.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "var(--color-neutral, #3d4451)",
-            confirmButtonText: "Yes, delete it!"
+            title: "Delete Contest?", text: "Cannot be undone.", icon: "warning", showCancelButton: true, confirmButtonColor: "#d33", confirmButtonText: "Yes, delete it!"
         }).then((result) => {
             if (result.isConfirmed) {
-                const remaining = contests.filter(c => c.id !== id);
-                setContests(remaining);
-                Swal.fire("Deleted!", "Your contest has been removed.", "success");
+                setContests(contests.filter(c => c.id !== id));
+                Swal.fire("Deleted!", "Contest removed.", "success");
             }
         });
     };
 
-    // Helper to render Status Badge
     const renderStatusBadge = (status) => (
-        <div className={`badge badge-sm font-bold border-none text-white p-3
-            ${status === 'Confirmed' ? 'badge-success' : ''}
-            ${status === 'Pending' ? 'badge-warning' : ''}
-            ${status === 'Rejected' ? 'badge-error' : ''}
-        `}>
+        <div className={`badge badge-sm font-bold border-none text-white p-3 ${status === 'Confirmed' ? 'badge-success' : ''} ${status === 'Pending' ? 'badge-warning' : ''} ${status === 'Rejected' ? 'badge-error' : ''}`}>
             {status === 'Confirmed' ? 'Approved' : status}
         </div>
     );
 
     return (
         <div className="w-full space-y-6">
-
+            
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -94,9 +74,10 @@ const MyCreatedContests = () => {
                 </Link>
             </div>
 
-            {/* --- VIEW 1: DESKTOP TABLE (Hidden on Mobile) --- */}
-            <div className="hidden md:block card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
-                <div className="overflow-x-auto">
+            {/* --- VIEW 1: DESKTOP TABLE --- */}
+            {/* Added 'overflow-visible' to the card to help, but changing tooltip direction is key */}
+            <div className="hidden md:block card bg-base-100 shadow-xl border border-base-200 overflow-visible">
+                <div className="overflow-x-auto overflow-y-visible">
                     <table className="table table-zebra w-full">
                         <thead className="bg-base-200/50 text-base-content/60">
                             <tr>
@@ -125,19 +106,33 @@ const MyCreatedContests = () => {
                                         </td>
                                         <td className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Link
-                                                    to={`/dashboard/creator/contest/task/${contest.id}`}
-                                                    className={`btn btn-sm btn-ghost text-primary tooltip tooltip-bottom ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-20' : ''}`}
+                                                
+                                                {/* CHANGED TO TOOLTIP-LEFT */}
+                                                <Link 
+                                                    to={`/dashboard/contest/${contest.id}/submissions`}
+                                                    className={`btn btn-sm btn-ghost text-primary tooltip tooltip-left ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-20' : ''}`}
                                                     data-tip="See Submissions"
                                                 >
                                                     <FaListAlt className="text-lg" />
                                                 </Link>
+
                                                 {contest.status === 'Pending' && (
                                                     <>
-                                                        <button onClick={() => openEditModal(contest)} className="btn btn-sm btn-ghost text-info tooltip tooltip-bottom" data-tip="Edit">
+                                                        {/* CHANGED TO TOOLTIP-LEFT */}
+                                                        <button 
+                                                            onClick={() => openEditModal(contest)} 
+                                                            className="btn btn-sm btn-ghost text-info tooltip tooltip-left" 
+                                                            data-tip="Edit"
+                                                        >
                                                             <FaEdit className="text-lg" />
                                                         </button>
-                                                        <button onClick={() => handleDelete(contest.id)} className="btn btn-sm btn-ghost text-error tooltip tooltip-bottom" data-tip="Delete">
+                                                        
+                                                        {/* CHANGED TO TOOLTIP-LEFT */}
+                                                        <button 
+                                                            onClick={() => handleDelete(contest.id)} 
+                                                            className="btn btn-sm btn-ghost text-error tooltip tooltip-left" 
+                                                            data-tip="Delete"
+                                                        >
                                                             <FaTrashAlt className="text-lg" />
                                                         </button>
                                                     </>
@@ -152,7 +147,7 @@ const MyCreatedContests = () => {
                 </div>
             </div>
 
-            {/* --- VIEW 2: MOBILE CARDS (Hidden on Desktop) --- */}
+            {/* --- VIEW 2: MOBILE CARDS --- */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
                 {contests.length === 0 ? (
                     <div className="text-center py-10 opacity-50">You haven't created any contests yet.</div>
@@ -160,44 +155,25 @@ const MyCreatedContests = () => {
                     contests.map((contest) => (
                         <div key={contest.id} className="card bg-base-100 shadow-md border border-base-200">
                             <div className="card-body p-5">
-                                {/* Card Header */}
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="font-bold text-lg leading-tight">{contest.title}</h3>
                                     {renderStatusBadge(contest.status)}
                                 </div>
-
-                                {/* Details Grid */}
                                 <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
                                     <div className="flex items-center gap-2 opacity-70">
-                                        <FaCalendarAlt className="text-primary" />
-                                        <span className="font-mono">{contest.deadline}</span>
+                                        <FaCalendarAlt className="text-primary" /> <span className="font-mono">{contest.deadline}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 font-bold text-success justify-end">
-                                        <FaTrophy /> ${contest.prize}
-                                    </div>
+                                    <div className="flex items-center gap-2 font-bold text-success justify-end"><FaTrophy /> ${contest.prize}</div>
                                     <div className="flex items-center gap-2 opacity-70 col-span-2">
-                                        <FaUserFriends className="text-info" />
-                                        {contest.status === 'Confirmed' ? `${contest.submissionCount} Submissions` : 'No submissions yet'}
+                                        <FaUserFriends className="text-info" /> {contest.status === 'Confirmed' ? `${contest.submissionCount} Submissions` : 'No submissions yet'}
                                     </div>
                                 </div>
-
-                                {/* Actions Footer */}
                                 <div className="card-actions justify-end border-t border-base-200 pt-3">
-                                    <Link
-                                        to={`/dashboard/creator/contest/task/${contest.id}`}
-                                        className={`btn btn-sm btn-outline btn-primary ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-50' : ''}`}
-                                    >
-                                        Submissions
-                                    </Link>
-
+                                    <Link to={`/dashboard/contest/${contest.id}/submissions`} className={`btn btn-sm btn-outline btn-primary ${contest.status !== 'Confirmed' ? 'btn-disabled opacity-50' : ''}`}>Submissions</Link>
                                     {contest.status === 'Pending' && (
                                         <>
-                                            <button onClick={() => openEditModal(contest)} className="btn btn-sm btn-square btn-ghost text-info border border-base-200">
-                                                <FaEdit />
-                                            </button>
-                                            <button onClick={() => handleDelete(contest.id)} className="btn btn-sm btn-square btn-ghost text-error border border-base-200">
-                                                <FaTrashAlt />
-                                            </button>
+                                            <button onClick={() => openEditModal(contest)} className="btn btn-sm btn-square btn-ghost text-info border border-base-200"><FaEdit /></button>
+                                            <button onClick={() => handleDelete(contest.id)} className="btn btn-sm btn-square btn-ghost text-error border border-base-200"><FaTrashAlt /></button>
                                         </>
                                     )}
                                 </div>
@@ -207,19 +183,15 @@ const MyCreatedContests = () => {
                 )}
             </div>
 
-            {/* --- EDIT MODAL (Responsive Form) --- */}
+            {/* --- EDIT MODAL --- */}
             <dialog id="edit_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box overflow-visible">
                     <h3 className="font-bold text-lg mb-4">Edit Contest</h3>
-
                     <form onSubmit={handleSubmit(handleUpdate)} className="space-y-4">
-
                         <div className="form-control">
                             <label className="label"><span className="label-text">Contest Title</span></label>
                             <input type="text" className="input input-bordered w-full" {...register("title", { required: true })} />
                         </div>
-
-                        {/* Responsive Grid for Form Inputs */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="form-control">
                                 <label className="label"><span className="label-text">Category</span></label>
@@ -234,42 +206,24 @@ const MyCreatedContests = () => {
                                 <input type="number" className="input input-bordered w-full" {...register("prize", { required: true })} />
                             </div>
                         </div>
-
                         <div className="form-control">
                             <label className="label"><span className="label-text">Deadline</span></label>
-                            <Controller
-                                control={control}
-                                name="deadline"
-                                rules={{ required: true }}
-                                render={({ field }) => (
-                                    <DatePicker
-                                        selected={field.value}
-                                        onChange={(date) => field.onChange(date)}
-                                        className="input input-bordered w-full"
-                                        dateFormat="yyyy-MM-dd"
-                                        minDate={new Date()}
-                                        placeholderText="Select a deadline"
-                                    />
-                                )}
-                            />
+                            <Controller control={control} name="deadline" rules={{ required: true }} render={({ field }) => (
+                                <DatePicker selected={field.value} onChange={(date) => field.onChange(date)} className="input input-bordered w-full" dateFormat="yyyy-MM-dd" minDate={new Date()} placeholderText="Select a deadline" />
+                            )} />
                         </div>
-
                         <div className="form-control">
                             <label className="label"><span className="label-text">Description</span></label>
                             <textarea className="textarea textarea-bordered h-24" {...register("description", { required: true })}></textarea>
                         </div>
-
                         <div className="modal-action">
                             <button type="button" className="btn" onClick={() => document.getElementById('edit_modal').close()}>Cancel</button>
                             <button type="submit" className="btn btn-primary">Update</button>
                         </div>
                     </form>
                 </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
+                <form method="dialog" className="modal-backdrop"><button>close</button></form>
             </dialog>
-
         </div>
     );
 };

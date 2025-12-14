@@ -17,6 +17,7 @@ import CreateContest from "../pages/CreateContest/CreateContest";
 import MyProfile from "../pages/MyProfile/MyProfile";
 import ManageContests from "../pages/ManageContests/ManageContests";
 import ManageUsers from "../pages/ManageUsers/ManageUsers";
+import MyCreatedContests from "../pages/MyCreatedContests/MyCreatedContests";
 
 const router = createBrowserRouter([
     {
@@ -88,6 +89,10 @@ const router = createBrowserRouter([
             {
                 path: "manage/users",
                 Component: ManageUsers
+            },
+            {
+                path: "creator/my-contests",
+                Component: MyCreatedContests
             }
         ]
     },

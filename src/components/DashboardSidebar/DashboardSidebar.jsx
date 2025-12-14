@@ -53,7 +53,7 @@ const DashboardSidebar = () => {
 
   const navItems = [
     { label: "Overview", path: "/dashboard", icon: <FaHome /> },
-    { label: "My Registered Contests", path: "/dashboard/my-contests", icon: <FaGamepad /> },
+    { label: "My Contests", path: "/dashboard/user/contest/participation", icon: <FaGamepad /> },
     { label: "Winning History", path: "/dashboard/wins", icon: <FaTrophy /> },
     { label: "My Profile", path: "/dashboard/profile", icon: <FaUser /> },
     { label: "Add Contest", path: "/dashboard/creator/create", icon: <FaPlusCircle /> },

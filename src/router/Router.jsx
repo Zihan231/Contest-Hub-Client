@@ -19,6 +19,7 @@ import ManageContests from "../pages/ManageContests/ManageContests";
 import ManageUsers from "../pages/ManageUsers/ManageUsers";
 import MyCreatedContests from "../pages/MyCreatedContests/MyCreatedContests";
 import TaskSubmissions from "../pages/TaskSubmissions/TaskSubmissions";
+import MyParticipatedContests from "../pages/MyParticipatedContests/MyParticipatedContests";
 
 const router = createBrowserRouter([
     {
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
             {
                 path: "creator/contest/task/:id",
                 Component: TaskSubmissions
+            },
+            {
+                path: "user/contest/participation",
+                Component: MyParticipatedContests
             }
         ]
     },

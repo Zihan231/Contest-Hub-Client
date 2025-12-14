@@ -15,6 +15,8 @@ import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import OverView from "../pages/OverView/OverView";
 import CreateContest from "../pages/CreateContest/CreateContest";
 import MyProfile from "../pages/MyProfile/MyProfile";
+import ManageContests from "../pages/ManageContests/ManageContests";
+import ManageUsers from "../pages/ManageUsers/ManageUsers";
 
 const router = createBrowserRouter([
     {
@@ -78,6 +80,14 @@ const router = createBrowserRouter([
             {
                 path: "profile",
                 Component: MyProfile
+            },
+            {
+                path: "manage/contests",
+                Component: ManageContests
+            },
+            {
+                path: "manage/users",
+                Component: ManageUsers
             }
         ]
     },

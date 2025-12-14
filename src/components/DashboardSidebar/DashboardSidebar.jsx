@@ -59,8 +59,8 @@ const DashboardSidebar = () => {
     { label: "Add Contest", path: "/dashboard/creator/create", icon: <FaPlusCircle /> },
     { label: "My Created Contests", path: "/dashboard/my-created-contests", icon: <FaListAlt /> },
     { label: "Contest Submitted", path: "/dashboard/contest-submissions", icon: <FaClipboardCheck /> },
-    { label: "Manage Users", path: "/dashboard/manage-users", icon: <FaUsersCog /> },
-    { label: "Manage Contests", path: "/dashboard/manage-contests", icon: <FaTasks /> },
+    { label: "Manage Users", path: "/dashboard/manage/users", icon: <FaUsersCog /> },
+    { label: "Manage Contests", path: "/dashboard/manage/contests", icon: <FaTasks /> },
   ];
 
   return (

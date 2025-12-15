@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { FaUsers, FaArrowRight, FaSearch, FaPenNib, FaCode, FaBusinessTime, FaLayerGroup, FaPaintBrush, FaSortAmountDown } from "react-icons/fa";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "../../hooks/axios/useAxios";
 const AllContests = () => {
+    const axios = useAxios();
     const [activeTab, setActiveTab] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("popular");
@@ -70,6 +74,15 @@ const AllContests = () => {
             prizeMoney: 2000,
         },
     ];
+    const { data: ContestData } = useQuery({
+        queryKey: ["allContest"],
+        queryFn: async () => {
+            const res = axios.get("public/contests");
+            return (await res).data;
+        }
+    })
+    const allContest = ContestData?.data;
+    console.log(ContestData?.data);
 
     const tabs = [
         { id: "all", label: "All", icon: <FaLayerGroup /> },

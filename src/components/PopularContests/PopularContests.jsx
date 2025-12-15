@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { FaUsers, FaArrowRight } from "react-icons/fa";
-// 1. Import motion
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import useAxios from "../../hooks/axios/useAxios";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ const PopularContests = () => {
       return res.data;
     }
   });
-  console.log(ContestsData?.data);
+  // console.log(ContestsData?.data);
   const popularContests = ContestsData?.data;
   return (
     <section className="py-20 px-4 bg-base-200">

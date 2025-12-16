@@ -4,9 +4,8 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaUser, FaCloudUploadAlt, FaCheckCircle, FaIdBadge } from "react-icons/fa";
 import Swal from "sweetalert2";
 import AuthContext from "../../context/AuthContext/AuthContext";
-import axios from "axios";
 import Loading from "../../components/Loading/Loading";
-import { updateProfile } from "firebase/auth";
+import { deleteUser, updateProfile } from "firebase/auth";
 import useAxios from "../../hooks/axios/useAxios";
 
 const Register = () => {
@@ -33,81 +32,150 @@ const Register = () => {
   const onSubmit = async (data) => {
     setLoading(true);
 
-    // Extract data
-    const fileToUpload = data.image[0];
-    const { name, email, password, role } = data; // Role is here but unused as requested
+    const fileToUpload = data.image?.[0];
+    const { name, email, password, role } = data;
 
-    // Prepare Image Upload
-    const formData = new FormData();
-    formData.append('image', fileToUpload);
+    if (!fileToUpload) {
+      setLoading(false);
+      return Swal.fire({
+        title: "Image required",
+        text: "Please select a profile image.",
+        icon: "warning",
+      });
+    }
+
     const imgURL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
 
+    let createdUser = null;
+
     try {
-      // --- Upload Image to ImgBB ---
-      const res = await axios.post(imgURL, formData);
-      const photoURL = res.data.data.display_url;
-      console.log("Image Uploaded URL:", photoURL);
-
-      // --- Create User in Firebase ---
+      //  1) Create user account FIRST (Firebase)
       const result = await createUser(email, password);
-      const createdUser = result.user;
+      createdUser = result.user;
 
-      // --- Update Profile (Name & Photo) ---
-      await updateProfile(createdUser, {
-        displayName: name,
-        photoURL: photoURL
+      //  2) Upload image AFTER account created (ImgBB)
+      const formData = new FormData();
+      formData.append("image", fileToUpload);
+
+      const imgRes = await axios.post(imgURL, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
+      const photoURL = imgRes?.data?.data?.display_url;
+      if (!photoURL) throw new Error("Image upload failed. No URL returned.");
 
+      //  3) Update firebase profile (name + photo)
+      await updateProfile(createdUser, {
+        displayName: name,
+        photoURL,
+      });
 
+      //  4) Update UI state
+      SetUser({ ...createdUser, displayName: name, photoURL });
 
-      // --- Set User Update UI ---
-      SetUser({ ...createdUser, displayName: name, photoURL: photoURL });
-      axios.post("public/signUp", { name: name, email: email, photoURL: photoURL, role: role });
-      
-      // --- STEP 5: Success & Redirect ---
+      //  5) Save user to your backend DB
+      const payload = { name, email, photoURL, role };
+      const apiRes = await axios.post("/public/signUp", payload);
+
+      if (apiRes?.status !== 200 && apiRes?.status !== 201) {
+        throw new Error("Server responded with an unexpected status.");
+      }
+
+      //  Success
       Swal.fire({
         title: "Account created successfully!",
         text: "Welcome to ContestHub",
         icon: "success",
         timer: 2000,
-        showConfirmButton: false
+        showConfirmButton: false,
       });
 
       navigate(reDirectTo, { replace: true });
-
     } catch (error) {
       console.error("Registration Error:", error);
+
+      //  Rollback: if account created but image/db step failed, delete the firebase user
+      if (createdUser) {
+        try {
+          await deleteUser(createdUser);
+        } catch (rollbackErr) {
+          console.error("Rollback failed (could not delete user):", rollbackErr);
+        }
+      }
+
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+
       Swal.fire({
         title: "Registration Failed",
-        text: error.message || "Something went wrong",
-        icon: "error"
+        text: msg,
+        icon: "error",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleRegister = () => {
-    signInWithGoogle()
-      .then((result) => {
-        Swal.fire({
-          title: "Account created successfully !",
-          icon: "success",
-          draggable: true
-        }).then(
-          navigate(reDirectTo, { replace: true })
-        );
-        SetUser?.(result.user);
-      })
-      .catch(() => {
-        Swal.fire({
-          title: "Sign Up Failed !!!",
-          icon: "error",
-          draggable: true
-        })
+
+  const handleGoogleRegister = async () => {
+  try {
+    // 1) Google sign-in
+    const result = await signInWithGoogle();
+    const user = result?.user;
+
+    if (!user?.email) {
+      return Swal.fire({
+        title: "Sign Up Failed",
+        text: "Google account email not found.",
+        icon: "error",
       });
-  };
+    }
+
+    // 2) Prepare payload for DB
+    const payload = {
+      name: user.displayName || "Unnamed User",
+      email: user.email,
+      photoURL: user.photoURL || "",
+    };
+
+    // 3) Save to backend DB (wait for it)
+    const apiRes = await axios.post("/public/signUp", payload);
+
+    // (optional) check status
+    if (apiRes?.status !== 200 && apiRes?.status !== 201) {
+      throw new Error("Server responded with an unexpected status.");
+    }
+
+    // 4) Update UI state
+    SetUser?.(user);
+
+    // 5) Success popup then redirect
+    await Swal.fire({
+      title: "Account created successfully!",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    navigate(reDirectTo, { replace: true });
+  } catch (err) {
+    console.error("Google Sign Up Error:", err);
+
+    const msg =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Something went wrong";
+
+    Swal.fire({
+      title: "Sign Up Failed !!!",
+      text: msg,
+      icon: "error",
+    });
+  }
+};
+
 
   return (
     <div>

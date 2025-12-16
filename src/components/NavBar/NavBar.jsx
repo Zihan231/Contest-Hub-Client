@@ -162,7 +162,8 @@ const NavBar = () => {
                             <div className="w-10 rounded-full">
                                 <img
                                     alt="User Profile"
-                                    src={user?.photoURL || "https://i.pravatar.cc/150"}
+                                    src={user?.photoURL || "https://static.vecteezy.com/system/resources/previews/006/692/205/non_2x/loading-icon-template-black-color-editable-loading-icon-symbol-flat-illustration-for-graphic-and-web-design-free-vector.jpg"}
+                                    referrerPolicy="no-referrer"
                                 />
                             </div>
                         </div>

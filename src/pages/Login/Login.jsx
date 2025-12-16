@@ -22,30 +22,30 @@ const Login = () => {
 
   // 2. Form Submission Handler
   const onSubmit = (data) => {
+    Swal.fire({
+      title: "Signing In...",
+      text: "Verifying your credentials",
+      icon: "info",
+      timer: 1500,
+      showConfirmButton: false,
+      background: "var(--color-base-100)",
+      color: "var(--color-base-content)"
+    })
     setLoading(true);
     console.log("Login Data:", data);
     const { email, password } = data;
 
     signInWithEmailPass(email, password)
       .then(() => {
+
         Swal.fire({
-          title: "Signing In...",
-          text: "Verifying your credentials",
-          icon: "info",
-          timer: 1500,
-          showConfirmButton: false,
+          title: "Welcome Back!",
+          text: "Login successful",
+          icon: "success",
           background: "var(--color-base-100)",
           color: "var(--color-base-content)"
         }).then(() => {
-          Swal.fire({
-            title: "Welcome Back!",
-            text: "Login successful",
-            icon: "success",
-            background: "var(--color-base-100)",
-            color: "var(--color-base-content)"
-          }).then(() => {
-            navigate(reDirectTo, { replace: true })
-          });
+          navigate(reDirectTo, { replace: true })
         });
       })
       .catch(() => {

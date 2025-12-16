@@ -21,6 +21,7 @@ import MyCreatedContests from "../pages/MyCreatedContests/MyCreatedContests";
 import TaskSubmissions from "../pages/TaskSubmissions/TaskSubmissions";
 import MyParticipatedContests from "../pages/MyParticipatedContests/MyParticipatedContests";
 import TestAnimation from "../Test/TestAnimation/TestAnimation";
+import MyWinningContests from "../pages/MyWinningContests/MyWinningContests";
 
 const router = createBrowserRouter([
     {
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
             {
                 path: "user/contest/participation",
                 Component: MyParticipatedContests
+            },
+            {
+                path: "user/contest/wins",
+                Component: MyWinningContests
             }
         ]
     },

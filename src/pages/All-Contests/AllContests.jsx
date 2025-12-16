@@ -209,14 +209,13 @@ const AllContests = () => {
                                                 ))}
                                             </div>
                                         )}
-
                                         <div className="flex justify-between items-center text-sm font-semibold mb-4 text-base-content/80 mt-auto pt-3 border-t border-base-200">
                                             <span>Entry: ${contest.entryFee || 0}</span>
                                             <span className="text-primary">Prize: ${contest.prizeMoney || 0}</span>
                                         </div>
 
                                         <div className="card-actions justify-end">
-                                            <Link to={`/contest/details/${contest._id}`} className="btn btn-primary btn-sm w-full gap-2 shadow-md shadow-primary/20">
+                                            <Link to={`/contest/details/${contest?._id}`} className="btn btn-primary btn-sm w-full gap-2 shadow-md shadow-primary/20">
                                                 View Details <FaArrowRight />
                                             </Link>
                                         </div>

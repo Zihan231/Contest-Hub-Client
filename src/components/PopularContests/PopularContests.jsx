@@ -78,7 +78,7 @@ const PopularContests = () => {
                     : contest.description}
                 </p>
                 <div className="card-actions justify-end mt-auto">
-                  <Link to='/contest/details/id' className="btn btn-primary btn-sm w-full gap-2">
+                  <Link to={`/contest/details/${contest?._id}`} className="btn btn-primary btn-sm w-full gap-2">
                     View Details <FaArrowRight />
                   </Link>
                 </div>

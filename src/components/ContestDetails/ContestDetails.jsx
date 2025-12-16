@@ -3,7 +3,7 @@ import { FaUsers, FaTrophy, FaCalendarAlt, FaDollarSign, FaClock, FaCheckCircle,
 
 const ContestDetails = () => {
   const { id } = useParams();
-
+    
   // --- MOCK DATA (Replace with API Call) ---
   const contest = {
     name: "Business Logo Redesign",

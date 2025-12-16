@@ -87,12 +87,12 @@ const CreateContest = () => {
                                         {...register("type", { required: "Please select a type" })}
                                     >
                                         <option value="" disabled>Select Category</option>
-                                        <option value="Image Design">Image Design</option>
-                                        <option value="Article Writing">Article Writing</option>
-                                        <option value="Marketing Strategy">Marketing Strategy</option>
-                                        <option value="Digital Advertisement">Digital Advertisement</option>
-                                        <option value="Gaming Review">Gaming Review</option>
-                                        <option value="Business Idea">Business Idea</option>
+                                        <option value="Design">Design</option>
+                                        <option value="Writing">Writing</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Gaming">Gaming</option>
+                                        <option value="Business">Business</option>
+                                        <option value="Coding">Coding</option>
                                     </select>
                                 </div>
                             </div>

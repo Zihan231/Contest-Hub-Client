@@ -68,7 +68,7 @@ const Login = () => {
     signInWithGoogle()
       .then((result) => {
         Swal.fire({
-          title: "Account created successfully !",
+          title: "Login Successful !",
           icon: "success",
           draggable: true
         }).then(
@@ -78,7 +78,7 @@ const Login = () => {
       })
       .catch(() => {
         Swal.fire({
-          title: "Sign Up Failed !!!",
+          title: "Sign in Failed !!!",
           icon: "error",
           draggable: true
         })

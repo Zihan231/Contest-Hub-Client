@@ -2,14 +2,18 @@ import { NavLink, Link, useNavigate } from "react-router";
 import {
   FaHome, FaGamepad, FaTrophy, FaUser, FaSignOutAlt, FaBolt,
   FaPlusCircle, FaListAlt, FaClipboardCheck, FaUsersCog, FaTasks,
-  FaSun, FaMoon 
+  FaSun, FaMoon
 } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { useContext, useEffect, useState } from "react"; 
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/AuthContext/AuthContext";
+import useRole from "../../hooks/role/useRole";
 
 const DashboardSidebar = () => {
+  const { role } = useRole();
+  // console.log(role);
   const { logout, user } = useContext(AuthContext);
+  console.log(user);
   const navigate = useNavigate();
 
   // --- THEME STATE MANAGEMENT ---
@@ -33,7 +37,7 @@ const DashboardSidebar = () => {
   };
 
   const handleLogout = () => {
-    closeDrawer(); 
+    closeDrawer();
     Swal.fire({
       title: "Log out?",
       text: "You will be returned to the home screen.",
@@ -51,16 +55,30 @@ const DashboardSidebar = () => {
     });
   };
 
-  const navItems = [
+  let navItems = [
     { label: "Overview", path: "/dashboard", icon: <FaHome /> },
-    { label: "My Contests", path: "/dashboard/user/contest/participation", icon: <FaGamepad /> },
-    { label: "Winning History", path: "/dashboard/user/contest/wins", icon: <FaTrophy /> },
     { label: "My Profile", path: "/dashboard/profile", icon: <FaUser /> },
-    { label: "Add Contest", path: "/dashboard/creator/create", icon: <FaPlusCircle /> },
-    { label: "My Created Contests", path: "/dashboard/creator/my-contests", icon: <FaListAlt /> },
-    { label: "Manage Users", path: "/dashboard/manage/users", icon: <FaUsersCog /> },
-    { label: "Manage Contests", path: "/dashboard/manage/contests", icon: <FaTasks /> },
   ];
+
+  if (role === 'user') {
+    navItems = [
+      ...navItems,
+      { label: "My Contests", path: "/dashboard/user/contest/participation", icon: <FaGamepad /> },
+      { label: "Winning History", path: "/dashboard/user/contest/wins", icon: <FaTrophy /> },
+    ];
+  } else if (role === 'creator') {
+    navItems = [
+      ...navItems,
+      { label: "Add Contest", path: "/dashboard/creator/create", icon: <FaPlusCircle /> },
+      { label: "My Created Contests", path: "/dashboard/creator/my-contests", icon: <FaListAlt /> },
+    ];
+  } else if (role === 'admin') {
+    navItems = [
+      ...navItems,
+      { label: "Manage Users", path: "/dashboard/manage/users", icon: <FaUsersCog /> },
+      { label: "Manage Contests", path: "/dashboard/manage/contests", icon: <FaTasks /> },
+    ];
+  }
 
   return (
     <aside className="w-64 min-h-screen bg-base-100 border-r border-base-200 flex flex-col transition-all duration-300">
@@ -110,7 +128,7 @@ const DashboardSidebar = () => {
 
       {/* 3. FOOTER: USER, THEME & LOGOUT */}
       <div className="p-4 border-t border-base-200 bg-base-100/50 backdrop-blur-sm shrink-0">
-        
+
         {/* User Info */}
         <div className="flex items-center gap-3 mb-4 px-2">
           <div className="avatar online">
@@ -120,26 +138,26 @@ const DashboardSidebar = () => {
           </div>
           <div className="overflow-hidden">
             <h4 className="font-bold text-sm truncate">{user ? user?.displayName : "No Name Found"}</h4>
-            <p className="text-xs opacity-50 truncate">User Role</p>
+            <p className="text-xs opacity-50 truncate">{ role }</p>
           </div>
         </div>
 
         {/* --- THEME TOGGLE BUTTON --- */}
         <label className="swap swap-rotate btn btn-sm btn-ghost w-full mb-2 bg-base-200/50 hover:bg-base-200 text-base-content transition-all">
-            {/* hidden checkbox controls the state */}
-            <input type="checkbox" onChange={toggleTheme} checked={theme === "dark"} />
-            
-            {/* SUN ICON (Shows when Dark Mode is ON -> Click to switch to Light) */}
-            <div className="swap-on flex items-center gap-2">
-                <FaSun className="text-yellow-500" /> <span className="text-xs font-bold">Light Mode</span>
-            </div>
-            
-            {/* MOON ICON (Shows when Light Mode is ON -> Click to switch to Dark) */}
-            <div className="swap-off flex items-center gap-2">
-                <FaMoon className="text-blue-500" /> <span className="text-xs font-bold">Dark Mode</span>
-            </div>
+          {/* hidden checkbox controls the state */}
+          <input type="checkbox" onChange={toggleTheme} checked={theme === "dark"} />
+
+          {/* SUN ICON (Shows when Dark Mode is ON -> Click to switch to Light) */}
+          <div className="swap-on flex items-center gap-2">
+            <FaSun className="text-yellow-500" /> <span className="text-xs font-bold">Light Mode</span>
+          </div>
+
+          {/* MOON ICON (Shows when Light Mode is ON -> Click to switch to Dark) */}
+          <div className="swap-off flex items-center gap-2">
+            <FaMoon className="text-blue-500" /> <span className="text-xs font-bold">Dark Mode</span>
+          </div>
         </label>
-        
+
         {/* Logout Button */}
         <button
           onClick={handleLogout}

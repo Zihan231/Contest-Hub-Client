@@ -7,8 +7,10 @@ import AuthContext from "../../context/AuthContext/AuthContext";
 import axios from "axios";
 import Loading from "../../components/Loading/Loading";
 import { updateProfile } from "firebase/auth";
+import useAxios from "../../hooks/axios/useAxios";
 
 const Register = () => {
+  const axios = useAxios();
   const navigate = useNavigate();
   const location = useLocation();
   const reDirectTo = location.state?.from || '/';
@@ -30,10 +32,10 @@ const Register = () => {
   // 2. Form Submission Handler
   const onSubmit = async (data) => {
     setLoading(true);
-    
+
     // Extract data
     const fileToUpload = data.image[0];
-    const { name, email, password } = data; // Role is here but unused as requested
+    const { name, email, password, role } = data; // Role is here but unused as requested
 
     // Prepare Image Upload
     const formData = new FormData();
@@ -43,7 +45,7 @@ const Register = () => {
     try {
       // --- Upload Image to ImgBB ---
       const res = await axios.post(imgURL, formData);
-      const photoURL = res.data.data.display_url; 
+      const photoURL = res.data.data.display_url;
       console.log("Image Uploaded URL:", photoURL);
 
       // --- Create User in Firebase ---
@@ -56,9 +58,13 @@ const Register = () => {
         photoURL: photoURL
       });
 
+
+
+
       // --- Set User Update UI ---
       SetUser({ ...createdUser, displayName: name, photoURL: photoURL });
-
+      axios.post("public/signUp", { name: name, email: email, photoURL: photoURL, role: role });
+      
       // --- STEP 5: Success & Redirect ---
       Swal.fire({
         title: "Account created successfully!",

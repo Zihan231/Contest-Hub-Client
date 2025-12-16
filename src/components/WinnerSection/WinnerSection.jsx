@@ -3,33 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import useAxios from "../../hooks/axios/useAxios";
 
 const WinnerSection = () => {
-  // Demo Data for Recent Winners
-  // const winners = [
-  //   {
-  //     id: 1,
-  //     name: "Sarah Jenkins",
-  //     contest: "UI/UX Dashboard Design",
-  //     prize: "$2,000",
-  //     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop",
-  //     badge: "Gold"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Michael Chen",
-  //     contest: "Python AI Optimizer",
-  //     prize: "$1,500",
-  //     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop",
-  //     badge: "Silver"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Emma Wilson",
-  //     contest: "Eco-Friendly Logo",
-  //     prize: "$800",
-  //     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format&fit=crop",
-  //     badge: "Bronze"
-  //   }
-  // ];
   const axios = useAxios();
   const { data: winnersData } = useQuery({
     queryKey: ["winners"],

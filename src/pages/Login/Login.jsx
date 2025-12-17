@@ -32,7 +32,6 @@ const Login = () => {
       color: "var(--color-base-content)"
     })
     setLoading(true);
-    console.log("Login Data:", data);
     const { email, password } = data;
 
     signInWithEmailPass(email, password)

@@ -6,8 +6,10 @@ import {
     FaMedal, FaEnvelope, FaMapMarkerAlt, FaCamera 
 } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import useRole from '../../hooks/role/useRole';
 
 const MyProfile = () => {
+    const { role } = useRole();
     const { user } = useContext(AuthContext); 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -84,7 +86,7 @@ const MyProfile = () => {
                     <div className="mb-0 hidden md:block">
                         <h1 className="text-3xl font-black text-base-content">{user?.displayName || "User Name"}</h1>
                         <div className="badge badge-primary badge-outline font-bold mt-1 uppercase text-xs tracking-widest">
-                            User / Creator
+                            {role}
                         </div>
                     </div>
                 </div>

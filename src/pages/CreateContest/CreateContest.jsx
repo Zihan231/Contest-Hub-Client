@@ -85,7 +85,6 @@ const CreateContest = () => {
 
             // 3) Create contest (YOU MISSED await here)
             const apiRes = await axiosSecure.post("/creator/contest/create", payload);
-
             if (![200, 201].includes(apiRes.status)) {
                 throw new Error("Server responded with an unexpected status.");
             }

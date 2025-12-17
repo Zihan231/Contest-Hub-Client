@@ -368,7 +368,7 @@ const MyProfile = () => {
                   ) : (
                     <p className="text-lg font-semibold flex items-center gap-2">
                       <FaMapMarkerAlt className="text-error" />{" "}
-                      {userData?.address || "Dhaka, Bangladesh"}
+                      {userData?.address || "No Address Found"}
                     </p>
                   )}
                 </div>
@@ -386,7 +386,7 @@ const MyProfile = () => {
                     />
                   ) : (
                     <p className="text-base-content/80 leading-relaxed bg-base-200/50 p-4 rounded-lg">
-                      "{userData?.bio || "Passionate contestant and creative thinker."}"
+                      "{userData?.bio || "No Bio Found"}"
                     </p>
                   )}
                 </div>

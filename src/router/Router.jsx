@@ -24,6 +24,7 @@ import TestAnimation from "../Test/TestAnimation/TestAnimation";
 import MyWinningContests from "../pages/MyWinningContests/MyWinningContests";
 import AdminRoute from "./adminRoute/adminRoute";
 import CreatorRoute from "./CreatorRoute/CreatorRoute";
+import UserRoute from "./UserRoute/UserRoute";
 
 const router = createBrowserRouter([
     {
@@ -116,11 +117,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "user/contest/participation",
-                Component: MyParticipatedContests
+                element: <UserRoute>
+                    <MyParticipatedContests></MyParticipatedContests>
+                </UserRoute>
             },
             {
                 path: "user/contest/wins",
-                Component: MyWinningContests
+                element: <UserRoute>
+                    <MyWinningContests></MyWinningContests>
+                </UserRoute>
             }
         ]
     },

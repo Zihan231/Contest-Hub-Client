@@ -85,7 +85,7 @@ const ManageUsers = () => {
       );
 
       Swal.fire("Updated!", `User is now a ${roleLabel(nextRole)}.`, "success");
-    } catch (e) {
+    } catch  {
       Swal.fire("Failed!", "Could not update user role. Try again.", "error");
     } finally {
       setUpdatingId(null);

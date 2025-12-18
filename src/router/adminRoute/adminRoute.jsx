@@ -3,6 +3,7 @@ import AuthContext from '../../context/AuthContext/AuthContext';
 import Loading from '../../components/Loading/Loading';
 import useRole from '../../hooks/role/useRole';
 import { Navigate } from 'react-router';
+import Forbidden from '../../components/Forbidden/Forbidden';
 const AdminRoute = ({ children }) => {
     const { isLoading } = use(AuthContext);
     const { role, roleLoading } = useRole();
@@ -10,7 +11,7 @@ const AdminRoute = ({ children }) => {
         <Loading></Loading>
     }
     if (role !== 'admin') {
-        return <div>Hello</div>
+        return <Forbidden></Forbidden>
     }
     return children
 };

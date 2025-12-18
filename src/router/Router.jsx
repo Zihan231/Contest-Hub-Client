@@ -23,6 +23,7 @@ import MyParticipatedContests from "../pages/MyParticipatedContests/MyParticipat
 import TestAnimation from "../Test/TestAnimation/TestAnimation";
 import MyWinningContests from "../pages/MyWinningContests/MyWinningContests";
 import AdminRoute from "./adminRoute/adminRoute";
+import CreatorRoute from "./CreatorRoute/CreatorRoute";
 
 const router = createBrowserRouter([
     {
@@ -81,7 +82,9 @@ const router = createBrowserRouter([
             },
             {
                 path: "creator/create",
-                Component: CreateContest
+                element: <CreatorRoute>
+                    <CreateContest></CreateContest>
+                </CreatorRoute>
             },
             {
                 path: "profile",
@@ -101,11 +104,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "creator/my-contests",
-                Component: MyCreatedContests
+                element: <CreatorRoute>
+                    <MyCreatedContests></MyCreatedContests>
+                </CreatorRoute>
             },
             {
                 path: "creator/contest/task/:id",
-                Component: TaskSubmissions
+                element: <CreatorRoute>
+                    <TaskSubmissions></TaskSubmissions>
+                </CreatorRoute>
             },
             {
                 path: "user/contest/participation",

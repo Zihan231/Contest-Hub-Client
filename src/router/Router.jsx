@@ -22,6 +22,7 @@ import TaskSubmissions from "../pages/TaskSubmissions/TaskSubmissions";
 import MyParticipatedContests from "../pages/MyParticipatedContests/MyParticipatedContests";
 import TestAnimation from "../Test/TestAnimation/TestAnimation";
 import MyWinningContests from "../pages/MyWinningContests/MyWinningContests";
+import AdminRoute from "./adminRoute/adminRoute";
 
 const router = createBrowserRouter([
     {
@@ -88,11 +89,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "manage/contests",
-                Component: ManageContests
+                element: <AdminRoute>
+                    <ManageContests></ManageContests>
+                </AdminRoute>
             },
             {
                 path: "manage/users",
-                Component: ManageUsers
+                element: <AdminRoute>
+                    <ManageUsers></ManageUsers>
+                </AdminRoute>
             },
             {
                 path: "creator/my-contests",

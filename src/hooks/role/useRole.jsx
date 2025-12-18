@@ -6,7 +6,7 @@ import useAxiosSecure from '../axiosSecure/useAxiosSecure';
 const useRole = () => {
     const axiosSecure = useAxiosSecure();
     const { user } = useContext(AuthContext);
-    const { data: userData, isLoading } = useQuery({
+    const { data: userData, isLoading:roleLoading } = useQuery({
         queryKey: ["user-role", user?.email],
         queryFn: async () => {
             const res = await axiosSecure.get(`public/user/getRole/${user?.email}`);
@@ -14,7 +14,7 @@ const useRole = () => {
         }
     })
     const role = userData?.role;
-    return { role, isLoading };
+    return { role, roleLoading };
 };
 
 export default useRole;

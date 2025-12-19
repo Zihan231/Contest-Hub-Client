@@ -62,7 +62,7 @@ const ContestDetails = () => {
         if (String(paymentStatus || "").toLowerCase() === "paid") {
           Swal.fire({
             icon: "info",
-            title: "Already registered ✅",
+            title: "Already registered",
             text: "Your payment is already confirmed.",
           });
           return;
@@ -73,7 +73,7 @@ const ContestDetails = () => {
           title: "Already registered",
           text: paymentStatus
             ? `You already registered. Payment status: ${paymentStatus}. Go to Dashboard → My Contests to pay.`
-            : "You already registered. Go to Dashboard → My Contests to check payment status / pay.",
+            : "You already registered. Go to Dashboard → My Contests to check payment status or pay.",
           showCancelButton: true,
           confirmButtonText: "Go to My Contests",
           cancelButtonText: "OK",

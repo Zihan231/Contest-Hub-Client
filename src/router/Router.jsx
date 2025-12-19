@@ -25,6 +25,7 @@ import MyWinningContests from "../pages/MyWinningContests/MyWinningContests";
 import AdminRoute from "./adminRoute/adminRoute";
 import CreatorRoute from "./CreatorRoute/CreatorRoute";
 import UserRoute from "./UserRoute/UserRoute";
+import PaymentSuccess from "../components/PaymentSuccess/PaymentSuccess";
 
 const router = createBrowserRouter([
     {
@@ -126,6 +127,10 @@ const router = createBrowserRouter([
                 element: <UserRoute>
                     <MyWinningContests></MyWinningContests>
                 </UserRoute>
+            },
+            {
+                path: "payment/success",
+                Component: PaymentSuccess
             }
         ]
     },

@@ -136,6 +136,12 @@ const router = createBrowserRouter([
             {
                 path: "payment/failed",
                 Component: PaymentFail
+            },
+            {
+                path: "contest/:id/submissions",
+                element: <CreatorRoute>
+                    <TaskSubmissions></TaskSubmissions>
+                </CreatorRoute>
             }
         ]
     },

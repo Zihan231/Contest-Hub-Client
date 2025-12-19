@@ -383,7 +383,7 @@ const MyCreatedContests = () => {
                 <th>Deadline</th>
                 <th>Prize</th>
                 <th>Status</th>
-                <th className="text-center">Submissions</th>
+                <th className="text-center">Participants</th>
                 <th className="text-right">Actions</th>
               </tr>
             </thead>

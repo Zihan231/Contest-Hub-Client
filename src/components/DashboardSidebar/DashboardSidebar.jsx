@@ -56,8 +56,8 @@ const DashboardSidebar = () => {
   };
 
   let navItems = [
-    { label: "Overview", path: "/dashboard", icon: <FaHome /> },
-    { label: "My Profile", path: "/dashboard/profile", icon: <FaUser /> },
+    // { label: "Overview", path: "/dashboard", icon: <FaHome /> },
+    { label: "My Profile", path: "/dashboard", icon: <FaUser /> },
   ];
 
   if (role === 'user') {

@@ -81,7 +81,7 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                Component: OverView
+                Component: MyProfile
             },
             {
                 path: "creator/create",
@@ -89,10 +89,10 @@ const router = createBrowserRouter([
                     <CreateContest></CreateContest>
                 </CreatorRoute>
             },
-            {
-                path: "profile",
-                Component: MyProfile
-            },
+            // {
+            //     path: "profile",
+            //     Component: MyProfile
+            // },
             {
                 path: "manage/contests",
                 element: <AdminRoute>

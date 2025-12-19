@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../../context/AuthContext/AuthContext";
 import {
@@ -41,13 +41,26 @@ const MyProfile = () => {
     },
   });
 
+  // ✅ Fetch win rate from API (needs DB userId)
+  const {
+    data: winRateData,
+    isLoading: winLoading,
+  } = useQuery({
+    queryKey: ["winRate", userData?._id],
+    enabled: !!userData?._id && role === "user",
+    queryFn: async () => {
+      const res = await axiosSecure.get(`user/profile/winRate/${userData._id}`);
+      // expected: { totalWin, totalParticipations, winRate }
+      return res?.data;
+    },
+  });
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm({
-    // ✅ initial empty, then we set real values using reset() after async load
     defaultValues: {
       displayName: "",
       address: "",
@@ -80,7 +93,6 @@ const MyProfile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    // reset to latest values
     reset({
       displayName: user?.displayName || "",
       address: userData?.address || "",
@@ -88,6 +100,23 @@ const MyProfile = () => {
     });
     setPreviewImage(user?.photoURL || userData?.photoURL || "");
   };
+
+  // ✅ Stats (win rate API is the source of truth)
+  const stats = useMemo(() => {
+    const totalWin = Number(winRateData?.totalWin ?? 0);
+    const totalParticipations = Number(winRateData?.totalParticipations ?? 0);
+    const winRate = Number(winRateData?.winRate ?? 0);
+
+    const totalEarnings = Number(userData?.totalEarnings ?? 0);
+
+    return {
+      totalWin,
+      totalParticipations,
+      winRate,
+      totalEarnings,
+      globalRank: userData?.globalRank ?? "#—",
+    };
+  }, [winRateData, userData]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -135,7 +164,7 @@ const MyProfile = () => {
         const res = await axiosSecure.patch("user/profile/update", dbPayload);
 
         if (res?.status === 200 || res?.status === 201) {
-          await refetch(); // ✅ refresh DB view data
+          await refetch();
 
           Swal.fire({
             title: "Profile Updated!",
@@ -199,7 +228,7 @@ const MyProfile = () => {
     );
   }
 
-  // register helpers (so we can call onChange safely)
+  // register helpers
   const photoRegister = register("photo");
   const displayNameRegister = register("displayName", { required: true });
   const addressRegister = register("address");
@@ -209,11 +238,9 @@ const MyProfile = () => {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* --- HEADER SECTION --- */}
       <div className="relative mb-24 md:mb-28">
-        {/* Cover Image */}
         <div className="h-48 md:h-64 w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 overflow-hidden shadow-lg relative">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
 
-          {/* Edit Mode Toggle */}
           <div className="absolute top-4 right-4 z-10">
             <label className="cursor-pointer flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 transition-all shadow-sm">
               <span className="text-white font-bold text-xs uppercase tracking-wider">
@@ -229,7 +256,6 @@ const MyProfile = () => {
           </div>
         </div>
 
-        {/* Avatar Wrapper */}
         <div className="absolute -bottom-16 left-6 md:left-10 flex items-end gap-6">
           <div className="avatar">
             <div className="w-32 md:w-40 rounded-full ring ring-base-100 ring-offset-base-100 ring-offset-4 shadow-2xl bg-base-100 overflow-hidden">
@@ -241,7 +267,6 @@ const MyProfile = () => {
             </div>
           </div>
 
-          {/* Name & Role */}
           <div className="mb-2 hidden md:block">
             <h1 className="text-3xl font-black text-base-content">
               {user?.displayName || "User Name"}
@@ -255,7 +280,7 @@ const MyProfile = () => {
 
       {/* --- MAIN CONTENT GRID --- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT COLUMN: Personal Info */}
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
           <div className="card bg-base-100 shadow-xl border border-base-200">
             <div className="card-body">
@@ -291,9 +316,7 @@ const MyProfile = () => {
                 )}
               </div>
 
-              {/* --- FORM FIELDS --- */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 1. Profile Photo Upload */}
                 {isEditing && (
                   <div className="form-control md:col-span-2">
                     <label className="label font-bold text-base-content/60">
@@ -313,13 +336,12 @@ const MyProfile = () => {
 
                     <label className="label">
                       <span className="label-text-alt text-base-content/50">
-                        Recommended: Square JPG, PNG. Max 2MB.
+                        Recommended: Square JPG, PNG.
                       </span>
                     </label>
                   </div>
                 )}
 
-                {/* Name */}
                 <div className="form-control">
                   <label className="label font-bold text-base-content/60">
                     Full Name
@@ -343,7 +365,6 @@ const MyProfile = () => {
                   )}
                 </div>
 
-                {/* Email (Read Only) */}
                 <div className="form-control">
                   <label className="label font-bold text-base-content/60">
                     Email
@@ -353,7 +374,6 @@ const MyProfile = () => {
                   </div>
                 </div>
 
-                {/* Address */}
                 <div className="form-control md:col-span-2">
                   <label className="label font-bold text-base-content/60">
                     Address
@@ -373,7 +393,6 @@ const MyProfile = () => {
                   )}
                 </div>
 
-                {/* Bio */}
                 <div className="form-control md:col-span-2">
                   <label className="label font-bold text-base-content/60 mr-2">
                     About Me
@@ -395,60 +414,84 @@ const MyProfile = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Stats */}
-        <div className="space-y-6">
-          <div className="card bg-base-100 shadow-xl border border-base-200">
-            <div className="card-body items-center text-center">
-              <h3 className="font-bold text-gray-500 mb-4 uppercase text-xs tracking-widest">
-                Performance
-              </h3>
-              <div
-                className="radial-progress text-primary font-black text-2xl"
-                style={{ "--value": 68, "--size": "8rem", "--thickness": "10px" }}
-                role="progressbar"
-              >
-                68%
-                <span className="block text-xs font-normal text-base-content/50 mt-1">
-                  Win Rate
-                </span>
+        {/* ✅ RIGHT COLUMN: Win Rate + Stats */}
+        {role === "user" && (
+          <div className="space-y-6">
+            <div className="card bg-base-100 shadow-xl border border-base-200">
+              <div className="card-body items-center text-center">
+                <h3 className="font-bold text-gray-500 mb-4 uppercase text-xs tracking-widest">
+                  Performance
+                </h3>
+
+                {winLoading ? (
+                  <div className="flex items-center gap-2">
+                    <span className="loading loading-spinner loading-md"></span>
+                    <span className="text-sm opacity-70">Loading win rate...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      className="radial-progress text-primary font-black text-2xl"
+                      style={{
+                        "--value": stats.winRate,
+                        "--size": "8rem",
+                        "--thickness": "10px",
+                      }}
+                      role="progressbar"
+                    >
+                      {stats.winRate}%
+                      <span className="block text-xs font-normal text-base-content/50 mt-1">
+                        Win Rate
+                      </span>
+                    </div>
+
+                    <div className="divider my-2"></div>
+
+                    {/* ✅ show relevant info from API */}
+                    <div className="w-full grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-black text-base-content">
+                          {stats.totalParticipations}
+                        </p>
+                        <p className="text-xs text-base-content/60 font-bold uppercase">
+                          Participations
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-black text-yellow-500">
+                          {stats.totalWin}
+                        </p>
+                        <p className="text-xs text-base-content/60 font-bold uppercase">
+                          Total Wins
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="stats stats-vertical shadow-xl w-full border border-base-200 bg-base-100">
+              <div className="stat">
+                <div className="stat-figure text-green-500">
+                  <FaWallet className="text-3xl" />
+                </div>
+                <div className="stat-title font-bold">Total Earnings</div>
+                <div className="stat-value text-green-500">
+                  ${stats.totalEarnings}
+                </div>
               </div>
 
-              <div className="divider my-2"></div>
-
-              <div className="w-full grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-black text-base-content">42</p>
-                  <p className="text-xs text-base-content/60 font-bold uppercase">
-                    Contests
-                  </p>
+              {/* <div className="stat">
+                <div className="stat-figure text-yellow-500">
+                  <FaMedal className="text-3xl" />
                 </div>
-                <div>
-                  <p className="text-2xl font-black text-yellow-500">12</p>
-                  <p className="text-xs text-base-content/60 font-bold uppercase">
-                    Wins
-                  </p>
-                </div>
-              </div>
+                <div className="stat-title font-bold">Global Rank</div>
+                <div className="stat-value text-yellow-500">{stats.globalRank}</div>
+              </div> */}
             </div>
           </div>
-
-          <div className="stats stats-vertical shadow-xl w-full border border-base-200 bg-base-100">
-            <div className="stat">
-              <div className="stat-figure text-green-500">
-                <FaWallet className="text-3xl" />
-              </div>
-              <div className="stat-title font-bold">Total Earnings</div>
-              <div className="stat-value text-green-500">$2,450</div>
-            </div>
-            <div className="stat">
-              <div className="stat-figure text-yellow-500">
-                <FaMedal className="text-3xl" />
-              </div>
-              <div className="stat-title font-bold">Global Rank</div>
-              <div className="stat-value text-yellow-500">#428</div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

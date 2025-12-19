@@ -19,7 +19,6 @@ import AuthContext from "../../context/AuthContext/AuthContext";
 const MyCreatedContests = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useContext(AuthContext);
-
   const queryClient = useQueryClient();
 
   const [editingContest, setEditingContest] = useState(null);
@@ -66,13 +65,15 @@ const MyCreatedContests = () => {
   // SAFE FIELD HELPERS
   // ---------------------------
   const getId = (c) => c?._id || c?.id;
-  const getTitle = (c) => c?.title ?? c?.contestName ?? "";
-  const getPrize = (c) => c?.prize ?? c?.prizeMoney ?? 0;
+
+  // ✅ map UI fields to backend fields
+  const getTitle = (c) => c?.contestName ?? c?.title ?? "";
+  const getPrize = (c) => c?.prizeMoney ?? c?.prize ?? 0;
   const getDeadline = (c) => c?.deadline ?? c?.endDate ?? "";
   const getDescription = (c) => c?.description ?? c?.details ?? "";
+
   const getCategory = (c) => c?.category ?? c?.contestCategory ?? "";
-  const getSubmissionCount = (c) =>
-    c?.submissionCount ?? c?.participationCount ?? 0;
+  const getSubmissionCount = (c) => c?.submissionCount ?? c?.participationCount ?? 0;
 
   const normalizeStatus = (s) => String(s || "").toLowerCase();
   const isConfirmed = (s) => normalizeStatus(s) === "confirmed";
@@ -85,16 +86,16 @@ const MyCreatedContests = () => {
     const cls = isConfirmed(s)
       ? "badge-success"
       : isPending(s)
-      ? "badge-warning"
-      : isRejected(s)
-      ? "badge-error"
-      : "badge-ghost";
+        ? "badge-warning"
+        : isRejected(s)
+          ? "badge-error"
+          : "badge-ghost";
 
     const label = isConfirmed(s)
       ? "Approved"
       : s
-      ? s[0].toUpperCase() + s.slice(1)
-      : "Unknown";
+        ? s[0].toUpperCase() + s.slice(1)
+        : "Unknown";
 
     return (
       <div className={`badge badge-sm font-bold border-none text-white p-3 ${cls}`}>
@@ -108,12 +109,7 @@ const MyCreatedContests = () => {
   // ---------------------------
   const queryKey = ["contestData", user?.email];
 
-  const {
-    data: contestData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: contestData, isLoading, isError, error } = useQuery({
     queryKey,
     enabled: !!user?.email,
     queryFn: async () => {
@@ -144,6 +140,12 @@ const MyCreatedContests = () => {
   });
 
   const openEditModal = (contest) => {
+    // ✅ only allow edit if pending (extra safety)
+    if (!isPending(contest?.status)) {
+      Swal.fire("Not allowed", "Only pending contests can be updated.", "info");
+      return;
+    }
+
     setEditingContest(contest);
 
     reset({
@@ -158,20 +160,17 @@ const MyCreatedContests = () => {
   };
 
   // ---------------------------
-  // OPTIMISTIC DELETE MUTATION
+  // DELETE (same as your code)
   // ---------------------------
   const deleteMutation = useMutation({
-    mutationFn: (contestId) =>
-      axiosSecure.delete(`creator/contest/delete/${contestId}`),
+    mutationFn: (contestId) => axiosSecure.delete(`creator/contest/delete/${contestId}`),
 
     onMutate: async (contestId) => {
       setDeletingId(contestId);
 
       await queryClient.cancelQueries({ queryKey });
-
       const prev = queryClient.getQueryData(queryKey);
 
-      // remove instantly
       queryClient.setQueryData(queryKey, (old) => {
         if (!Array.isArray(old)) return old;
         return old.filter((c) => getId(c) !== contestId);
@@ -190,7 +189,6 @@ const MyCreatedContests = () => {
     },
 
     onError: (err, contestId, ctx) => {
-      // rollback
       if (ctx?.prev) queryClient.setQueryData(queryKey, ctx.prev);
 
       Swal.fire({
@@ -228,59 +226,107 @@ const MyCreatedContests = () => {
     });
 
     if (!result.isConfirmed) return;
-
     deleteMutation.mutate(contestId);
   };
 
   // ---------------------------
-  // UPDATE (fix time + show updating state)
+  // ✅ UPDATE: send backend keys (contestName, prizeMoney, deadline, description, etc.)
+  // Only for pending contests (backend enforces too)
   // ---------------------------
-  const handleUpdate = async (data) => {
-    if (!editingContest) return;
+  const updateMutation = useMutation({
+    mutationFn: async ({ contestId, payload }) => {
+      return axiosSecure.patch(`creator/contest/update/${contestId}`, payload);
+    },
 
-    setUpdating(true);
-    try {
-      const contestId = getId(editingContest);
-      if (!contestId) throw new Error("Invalid contest id");
-      if (!data.deadline) throw new Error("Deadline is required");
+    onMutate: async ({ contestId, payload }) => {
+      setUpdating(true);
 
-      const finalData = {
-        title: data.title,
-        category: data.category,
-        prize: Number(data.prize),
-        deadline: toLocalYMD(data.deadline),
-        description: data.description,
-      };
+      await queryClient.cancelQueries({ queryKey });
+      const prev = queryClient.getQueryData(queryKey);
 
-      const res = await axiosSecure.patch(
-        `creator/contest/update/${contestId}`,
-        finalData
-      );
+      // optimistic update in list
+      queryClient.setQueryData(queryKey, (old) => {
+        if (!Array.isArray(old)) return old;
 
-      if (res?.status !== 200 && res?.status !== 201) {
-        throw new Error(res?.data?.message || "Update failed");
-      }
+        return old.map((c) => {
+          if (getId(c) !== contestId) return c;
 
+          return {
+            ...c,
+            // update only mapped fields for UI
+            ...(payload.contestName !== undefined ? { contestName: payload.contestName } : {}),
+            ...(payload.description !== undefined ? { description: payload.description } : {}),
+            ...(payload.prizeMoney !== undefined ? { prizeMoney: payload.prizeMoney } : {}),
+            ...(payload.deadline !== undefined ? { deadline: payload.deadline } : {}),
+            ...(payload.category !== undefined ? { category: payload.category } : {}),
+          };
+        });
+      });
+
+      return { prev };
+    },
+
+    onSuccess: (res) => {
       document.getElementById("edit_modal")?.close();
 
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: res?.data?.message || "Updated successfully",
+        title: res?.data?.message || "Contest updated successfully",
         showConfirmButton: false,
         timer: 1500,
       });
+    },
 
-      queryClient.invalidateQueries({ queryKey });
-    } catch (e) {
+    onError: (e, vars, ctx) => {
+      // rollback
+      if (ctx?.prev) queryClient.setQueryData(queryKey, ctx.prev);
+
       Swal.fire({
         icon: "error",
         title: "Update Failed",
         text: e?.response?.data?.message || e?.message || "Something went wrong",
       });
-    } finally {
+    },
+
+    onSettled: () => {
       setUpdating(false);
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const handleUpdate = async (data) => {
+    if (!editingContest) return;
+
+    const contestId = getId(editingContest);
+    if (!contestId) {
+      Swal.fire("Error", "Invalid contest id", "error");
+      return;
     }
+
+    // ✅ only pending
+    if (!isPending(editingContest?.status)) {
+      Swal.fire("Not allowed", "Only pending contests can be updated.", "info");
+      return;
+    }
+
+    if (!data.deadline) {
+      Swal.fire("Error", "Deadline is required", "error");
+      return;
+    }
+
+    // ✅ build backend payload keys
+    // backend expects: contestName, description, prizeMoney, deadline ...
+    // (others like image, instruction, entryFee, tags can be added later)
+    const payload = {
+      contestName: data.title,
+      category: data.category, // only if your contest schema uses this field
+      prizeMoney: Number(data.prize),
+      deadline: toLocalYMD(data.deadline),
+      description: data.description,
+    };
+
+    updateMutation.mutate({ contestId, payload });
   };
 
   // ---------------------------
@@ -304,9 +350,7 @@ const MyCreatedContests = () => {
       <div className="w-full">
         <div className="alert alert-error">
           <span>
-            {error?.response?.data?.message ||
-              error?.message ||
-              "Failed to load contests."}
+            {error?.response?.data?.message || error?.message || "Failed to load contests."}
           </span>
         </div>
       </div>
@@ -318,18 +362,11 @@ const MyCreatedContests = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-base-content">
-            My Contests
-          </h2>
-          <p className="text-sm sm:text-base text-base-content/60">
-            Manage your created contests.
-          </p>
+          <h2 className="text-2xl sm:text-3xl font-black text-base-content">My Contests</h2>
+          <p className="text-sm sm:text-base text-base-content/60">Manage your created contests.</p>
         </div>
 
-        <Link
-          to="/dashboard/creator/create"
-          className="btn btn-primary w-full sm:w-auto gap-2"
-        >
+        <Link to="/dashboard/creator/create" className="btn btn-primary w-full sm:w-auto gap-2">
           <FaEdit /> <span className="hidden sm:inline">Create New</span>
           <span className="sm:hidden">New</span>
         </Link>
@@ -367,19 +404,13 @@ const MyCreatedContests = () => {
                     <tr key={id || index}>
                       <th>{index + 1}</th>
                       <td className="font-bold">{getTitle(contest)}</td>
-                      <td className="font-mono text-xs">
-                        {formatForUI(getDeadline(contest))}
-                      </td>
-                      <td className="font-bold text-success">
-                        ${getPrize(contest)}
-                      </td>
+                      <td className="font-mono text-xs">{formatForUI(getDeadline(contest))}</td>
+                      <td className="font-bold text-success">${getPrize(contest)}</td>
                       <td>{renderStatusBadge(status)}</td>
 
                       <td className="text-center">
                         {isConfirmed(status) ? (
-                          <span className="font-bold">
-                            {getSubmissionCount(contest)}
-                          </span>
+                          <span className="font-bold">{getSubmissionCount(contest)}</span>
                         ) : (
                           <span className="opacity-30">-</span>
                         )}
@@ -389,11 +420,8 @@ const MyCreatedContests = () => {
                         <div className="flex justify-end gap-2">
                           <Link
                             to={`/dashboard/contest/${id}/submissions`}
-                            className={`btn btn-sm btn-ghost text-primary tooltip tooltip-left ${
-                              !isConfirmed(status)
-                                ? "btn-disabled opacity-20"
-                                : ""
-                            }`}
+                            className={`btn btn-sm btn-ghost text-primary tooltip tooltip-left ${!isConfirmed(status) ? "btn-disabled opacity-20" : ""
+                              }`}
                             data-tip="See Submissions"
                           >
                             <FaListAlt className="text-lg" />
@@ -437,33 +465,24 @@ const MyCreatedContests = () => {
       {/* --- MOBILE CARDS --- */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
         {contests.length === 0 ? (
-          <div className="text-center py-10 opacity-50">
-            You haven't created any contests yet.
-          </div>
+          <div className="text-center py-10 opacity-50">You haven't created any contests yet.</div>
         ) : (
           contests.map((contest) => {
             const id = getId(contest);
             const status = contest?.status;
 
             return (
-              <div
-                key={id}
-                className="card bg-base-100 shadow-md border border-base-200"
-              >
+              <div key={id} className="card bg-base-100 shadow-md border border-base-200">
                 <div className="card-body p-5">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg leading-tight">
-                      {getTitle(contest)}
-                    </h3>
+                    <h3 className="font-bold text-lg leading-tight">{getTitle(contest)}</h3>
                     {renderStatusBadge(status)}
                   </div>
 
                   <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2 opacity-70">
                       <FaCalendarAlt className="text-primary" />
-                      <span className="font-mono">
-                        {formatForUI(getDeadline(contest))}
-                      </span>
+                      <span className="font-mono">{formatForUI(getDeadline(contest))}</span>
                     </div>
 
                     <div className="flex items-center gap-2 font-bold text-success justify-end">
@@ -472,18 +491,15 @@ const MyCreatedContests = () => {
 
                     <div className="flex items-center gap-2 opacity-70 col-span-2">
                       <FaUserFriends className="text-info" />
-                      {isConfirmed(status)
-                        ? `${getSubmissionCount(contest)} Submissions`
-                        : "No submissions yet"}
+                      {isConfirmed(status) ? `${getSubmissionCount(contest)} Submissions` : "No submissions yet"}
                     </div>
                   </div>
 
                   <div className="card-actions justify-end border-t border-base-200 pt-3">
                     <Link
                       to={`/dashboard/contest/${id}/submissions`}
-                      className={`btn btn-sm btn-outline btn-primary ${
-                        !isConfirmed(status) ? "btn-disabled opacity-50" : ""
-                      }`}
+                      className={`btn btn-sm btn-outline btn-primary ${!isConfirmed(status) ? "btn-disabled opacity-50" : ""
+                        }`}
                     >
                       Submissions
                     </Link>
@@ -501,11 +517,7 @@ const MyCreatedContests = () => {
                           disabled={deletingId === id}
                           className="btn btn-sm btn-square btn-ghost text-error border border-base-200"
                         >
-                          {deletingId === id ? (
-                            <span className="loading loading-spinner loading-xs" />
-                          ) : (
-                            <FaTrashAlt />
-                          )}
+                          {deletingId === id ? <span className="loading loading-spinner loading-xs" /> : <FaTrashAlt />}
                         </button>
                       </>
                     )}
@@ -532,9 +544,7 @@ const MyCreatedContests = () => {
                 className="input input-bordered w-full"
                 {...register("title", { required: "Title is required" })}
               />
-              {errors?.title && (
-                <p className="text-error text-sm mt-1">{errors.title.message}</p>
-              )}
+              {errors?.title && <p className="text-error text-sm mt-1">{errors.title.message}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -542,10 +552,14 @@ const MyCreatedContests = () => {
                 <label className="label">
                   <span className="label-text">Category</span>
                 </label>
-                <select className="select select-bordered" {...register("category")}>
-                  <option value="Image Design">Image Design</option>
-                  <option value="Article Writing">Article Writing</option>
-                  <option value="Digital Advertisement">Digital Advertisement</option>
+                <select className="select select-bordered" {...register("category", { required: "Category is required" })}>
+                  <option value="">Select category</option>
+                  <option value="Design">Design</option>
+                  <option value="Writing">Writing</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Gaming">Gaming</option>
+                  <option value="Business">Business</option>
+                  <option value="Coding">Coding</option>
                 </select>
               </div>
 
@@ -561,9 +575,7 @@ const MyCreatedContests = () => {
                     valueAsNumber: true,
                   })}
                 />
-                {errors?.prize && (
-                  <p className="text-error text-sm mt-1">{errors.prize.message}</p>
-                )}
+                {errors?.prize && <p className="text-error text-sm mt-1">{errors.prize.message}</p>}
               </div>
             </div>
 
@@ -588,9 +600,7 @@ const MyCreatedContests = () => {
                 )}
               />
 
-              {errors?.deadline && (
-                <p className="text-error text-sm mt-1">{errors.deadline.message}</p>
-              )}
+              {errors?.deadline && <p className="text-error text-sm mt-1">{errors.deadline.message}</p>}
             </div>
 
             <div className="form-control">
@@ -602,9 +612,7 @@ const MyCreatedContests = () => {
                 {...register("description", { required: "Description is required" })}
               />
               {errors?.description && (
-                <p className="text-error text-sm mt-1">
-                  {errors.description.message}
-                </p>
+                <p className="text-error text-sm mt-1">{errors.description.message}</p>
               )}
             </div>
 
@@ -617,12 +625,9 @@ const MyCreatedContests = () => {
               >
                 Cancel
               </button>
+
               <button type="submit" className="btn btn-primary" disabled={updating}>
-                {updating ? (
-                  <span className="loading loading-spinner loading-xs" />
-                ) : (
-                  "Update"
-                )}
+                {updating ? <span className="loading loading-spinner loading-xs" /> : "Update"}
               </button>
             </div>
           </form>

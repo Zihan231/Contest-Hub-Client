@@ -12,7 +12,7 @@ const ContestDetails = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // ✅ contest details fetch (key must include id)
+  // contest details fetch (key must include id)
   const { data: contestData } = useQuery({
     queryKey: ["contestDetails", id],
     enabled: !!id,
@@ -105,7 +105,7 @@ const ContestDetails = () => {
           alt={contest?.contestName}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-base-200 via-base-900/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-base-200 via-base-900/60 to-transparent"></div>
 
         <div className="absolute bottom-0 left-0 w-full p-8 md:p-12">
           <div className="max-w-7xl mx-auto">

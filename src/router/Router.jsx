@@ -26,6 +26,7 @@ import AdminRoute from "./adminRoute/adminRoute";
 import CreatorRoute from "./CreatorRoute/CreatorRoute";
 import UserRoute from "./UserRoute/UserRoute";
 import PaymentSuccess from "../components/PaymentSuccess/PaymentSuccess";
+import PaymentFail from "../components/PaymentFail/PaymentFail";
 
 const router = createBrowserRouter([
     {
@@ -131,6 +132,10 @@ const router = createBrowserRouter([
             {
                 path: "payment/success",
                 Component: PaymentSuccess
+            },
+            {
+                path: "payment/failed",
+                Component: PaymentFail
             }
         ]
     },

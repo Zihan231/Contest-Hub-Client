@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { FaCheck, FaArrowRight } from 'react-icons/fa';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import useAxiosSecure from '../../hooks/axiosSecure/useAxiosSecure';
 
 const PaymentSuccess = () => {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get('session_id');
+    console.log(sessionId);
     const axiosSecure = useAxiosSecure();
 
     useEffect(() => {

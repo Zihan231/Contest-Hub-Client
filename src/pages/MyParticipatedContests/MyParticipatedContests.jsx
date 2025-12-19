@@ -97,8 +97,7 @@ const MyParticipatedContests = () => {
             userEmail: user?.email
         }
         const res = await axiosSecure.post("user/contest/payment", paymentInfo);
-        console.log(res);
-        console.log(paymentInfo);
+        console.log("res data:", res.data.url);
         window.location.assign(res.data.url);
     };
 

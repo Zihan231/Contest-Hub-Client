@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router";
 import {
   FaUsers,
   FaArrowRight,
@@ -20,95 +20,108 @@ import Loading from "../../components/Loading/Loading";
 
 const AllContests = () => {
   const axiosPublic = useAxios();
-  const location = useLocation();
+  const [params, setParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("popular");
-  const [loading, setLoading] = useState(false);
-
-  // --- PAGINATION STATE ---
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // --- TABS CONFIG ---
-  const tabs = [
-    { id: "all", label: "All", icon: <FaLayerGroup /> },
-    { id: "Design", label: "Design", icon: <FaPaintBrush /> },
-    { id: "Writing", label: "Writing", icon: <FaPenNib /> },
-    { id: "Coding", label: "Coding", icon: <FaCode /> },
-    { id: "Business", label: "Business", icon: <FaBusinessTime /> },
-    { id: "Gaming", label: "Gaming", icon: <IoGameController /> },
-    { id: "Marketing", label: "Marketing", icon: <TbSpeakerphone /> },
-  ];
-
-  // ✅ URL -> state sync (THIS IS THE FIX)
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-
-    // supports: ?tab=Design OR ?category=Design OR ?q=Design
-    const tabParam = (params.get("tab") || params.get("category") || "").trim();
-    const qParam = (params.get("q") || "").trim();
-
-    const TAB_IDS = tabs.map((t) => t.id);
-    const findTabCaseInsensitive = (value) =>
-      TAB_IDS.find((t) => t.toLowerCase() === String(value).toLowerCase());
-
-    // If user clicked badge -> /all-contests?tab=Design
-    if (tabParam) {
-      const validTab = findTabCaseInsensitive(tabParam) || "all";
-      setActiveTab(validTab);
-      setSearchQuery("");
-      setCurrentPage(1);
-      return;
-    }
-
-    // If user searched -> /all-contests?q=something
-    if (qParam) {
-      const matchedTab = findTabCaseInsensitive(qParam);
-
-      if (matchedTab) {
-        // If search term exactly matches a tab name, open that tab
-        setActiveTab(matchedTab);
-        setSearchQuery("");
-      } else {
-        setActiveTab("all");
-        setSearchQuery(qParam);
-      }
-      setCurrentPage(1);
-    }
-  }, [location.search]); // run when URL changes
+  const tabs = useMemo(
+    () => [
+      { id: "all", label: "All", icon: <FaLayerGroup /> },
+      { id: "Design", label: "Design", icon: <FaPaintBrush /> },
+      { id: "Writing", label: "Writing", icon: <FaPenNib /> },
+      { id: "Coding", label: "Coding", icon: <FaCode /> },
+      { id: "Business", label: "Business", icon: <FaBusinessTime /> },
+      { id: "Gaming", label: "Gaming", icon: <IoGameController /> },
+      { id: "Marketing", label: "Marketing", icon: <TbSpeakerphone /> },
+    ],
+    []
+  );
 
   // --- FETCH DATA ---
-  const { data: ContestData, isLoading } = useQuery({
+  const { data: ContestData, isLoading, isFetching } = useQuery({
     queryKey: ["allContest"],
     queryFn: async () => {
-      setLoading(true);
       const res = await axiosPublic.get("public/contests");
-      setLoading(false);
       return res.data;
     },
   });
 
-  // Handle data structure safely
   const allContests = ContestData?.data || [];
+
+  // -----------------------------
+  // ✅ URL PARAMS (single source of truth)
+  // -----------------------------
+  const normalize = (s) => String(s || "").trim().toLowerCase();
+  const TAB_IDS = tabs.map((t) => t.id);
+
+  const tabParamRaw = (params.get("tab") || params.get("category") || "").trim();
+  const qParamRaw = (params.get("q") || "").trim();
+
+  const findTabCaseInsensitive = (value) =>
+    TAB_IDS.find((t) => normalize(t) === normalize(value));
+
+  // If q matches a tab name (e.g., ?q=Coding), treat it as tab.
+  const tabFromQ = qParamRaw ? findTabCaseInsensitive(qParamRaw) : null;
+
+  const activeTab = tabParamRaw
+    ? findTabCaseInsensitive(tabParamRaw) || "all"
+    : tabFromQ || "all";
+
+  const searchQuery = tabParamRaw || tabFromQ ? "" : qParamRaw;
+
+  // current page from URL
+  const pageParam = Number(params.get("page") || 1);
+  const safePageParam = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+  // --- URL UPDATE HELPERS ---
+  const setTabInUrl = (tabId) => {
+    const next = new URLSearchParams(params);
+    next.set("page", "1");
+    next.delete("q"); // clear search when selecting tab
+
+    if (tabId === "all") next.delete("tab");
+    else next.set("tab", tabId);
+
+    setParams(next);
+  };
+
+  const setSearchInUrl = (value) => {
+    const next = new URLSearchParams(params);
+    next.set("page", "1");
+    next.delete("tab"); // clear tab when searching
+
+    const v = String(value || "");
+    if (!v.trim()) next.delete("q");
+    else next.set("q", v);
+
+    setParams(next);
+  };
+
+  const setPageInUrl = (newPage) => {
+    const next = new URLSearchParams(params);
+    next.set("page", String(newPage));
+    setParams(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // --- FILTER & SORT LOGIC ---
   const filteredContests = allContests.filter((contest) => {
-    const active = activeTab.toLowerCase();
+    const active = normalize(activeTab);
 
-    const type = String(contest.contestType || contest.type || "").toLowerCase();
+    const type = normalize(contest.contestType || contest.type || "");
     const tagList = Array.isArray(contest.tags)
-      ? contest.tags.map((t) => String(t).toLowerCase())
+      ? contest.tags.map((t) => normalize(t))
       : [];
 
     // Tab filter: match contestType OR tags
     const typeMatch = active === "all" || type === active || tagList.includes(active);
 
     // Search filter
-    const search = searchQuery.trim().toLowerCase();
-    const name = String(contest.contestName || "").toLowerCase();
-    const desc = String(contest.description || "").toLowerCase();
+    const search = normalize(searchQuery);
+    const name = normalize(contest.contestName || "");
+    const desc = normalize(contest.description || "");
     const tagsText = tagList.join(" ");
 
     const searchMatch =
@@ -126,17 +139,11 @@ const AllContests = () => {
   });
 
   // --- PAGINATION CALCULATION ---
-  const totalPages = Math.ceil(sortedContests.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(sortedContests.length / itemsPerPage));
+  const currentPage = Math.min(Math.max(safePageParam, 1), totalPages);
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedContests = sortedContests.slice(startIndex, startIndex + itemsPerPage);
-
-  // Handlers
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
 
   if (isLoading)
     return (
@@ -147,8 +154,8 @@ const AllContests = () => {
 
   return (
     <div className="min-h-screen bg-base-200 py-12 px-4">
-      {loading ? (
-        <Loading></Loading>
+      {isFetching ? (
+        <Loading />
       ) : (
         <div className="max-w-7xl mx-auto">
           {/* Page Header */}
@@ -169,10 +176,7 @@ const AllContests = () => {
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setCurrentPage(1);
-                    }}
+                    onClick={() => setTabInUrl(tab.id)}
                     className={`group relative flex items-center gap-2 px-4 py-3 text-sm font-bold transition-all duration-300 ${
                       activeTab === tab.id
                         ? "text-primary"
@@ -199,19 +203,17 @@ const AllContests = () => {
 
             {/* Search & Sort */}
             <div className="flex items-center gap-3 w-full lg:w-auto">
-              <div className="relative flex-grow lg:flex-grow-0 lg:w-64">
+              <div className="relative grow lg:grow-0 lg:w-64">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40 text-xs" />
                 <input
                   type="text"
                   placeholder="Search contests or tags..."
                   className="input input-sm input-bordered w-full pl-9 rounded-lg focus:input-primary bg-base-100"
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setSearchInUrl(e.target.value)}
                 />
               </div>
+
               <select
                 className="select select-sm select-bordered w-full md:w-40 pl-3 pr-8 rounded-lg focus:select-primary bg-base-100 font-medium text-xs"
                 value={sortOrder}
@@ -271,10 +273,7 @@ const AllContests = () => {
                       {Array.isArray(contest.tags) && contest.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-4">
                           {contest.tags.slice(0, 3).map((tag, i) => (
-                            <span
-                              key={i}
-                              className="badge badge-ghost badge-xs text-[10px] text-base-content/60"
-                            >
+                            <span key={i} className="badge badge-ghost badge-xs text-[10px] text-base-content/60">
                               #{tag}
                             </span>
                           ))}
@@ -303,7 +302,7 @@ const AllContests = () => {
               <div className="flex justify-center items-center gap-2">
                 <button
                   className="btn btn-sm btn-outline"
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => setPageInUrl(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
                   Prev
@@ -314,7 +313,7 @@ const AllContests = () => {
                     <button
                       key={i}
                       className={`join-item btn btn-sm ${currentPage === i + 1 ? "btn-active btn-primary" : ""}`}
-                      onClick={() => handlePageChange(i + 1)}
+                      onClick={() => setPageInUrl(i + 1)}
                     >
                       {i + 1}
                     </button>
@@ -327,7 +326,7 @@ const AllContests = () => {
 
                 <button
                   className="btn btn-sm btn-outline"
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  onClick={() => setPageInUrl(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >
                   Next

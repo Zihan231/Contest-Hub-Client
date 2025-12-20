@@ -50,7 +50,7 @@ const MyProfile = () => {
     enabled: !!userData?._id && role === "user",
     queryFn: async () => {
       const res = await axiosSecure.get(`user/profile/winRate/${userData._id}`);
-      // expected: { totalWin, totalParticipations, winRate }
+      // expected: { totalWin, totalParticipation, winRate }
       return res?.data;
     },
   });
@@ -104,14 +104,14 @@ const MyProfile = () => {
   // ✅ Stats (win rate API is the source of truth)
   const stats = useMemo(() => {
     const totalWin = Number(winRateData?.totalWin ?? 0);
-    const totalParticipations = Number(winRateData?.totalParticipations ?? 0);
+    const totalParticipation = Number(winRateData?.totalParticipation ?? 0);
     const winRate = Number(winRateData?.winRate ?? 0);
 
     const totalEarnings = Number(userData?.totalEarnings ?? 0);
 
     return {
       totalWin,
-      totalParticipations,
+      totalParticipation,
       winRate,
       totalEarnings,
       globalRank: userData?.globalRank ?? "#—",
@@ -451,7 +451,7 @@ const MyProfile = () => {
                     <div className="w-full grid grid-cols-2 gap-4 text-center">
                       <div>
                         <p className="text-2xl font-black text-base-content">
-                          {stats.totalParticipations}
+                          {stats.totalParticipation}
                         </p>
                         <p className="text-xs text-base-content/60 font-bold uppercase">
                           Participations

@@ -7,6 +7,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../hooks/axiosSecure/useAxiosSecure";
@@ -32,11 +33,13 @@ const MyWinningContests = () => {
     queryKey: ["winningHistory"],
     queryFn: async () => {
       const res = await axiosSecure.get("user/contest/win/history");
-      return res.data; // { message, count, data: [...] }
+      return res.data; 
     },
   });
     console.log(winRes);
-  const winningHistory = winRes?.data || [];
+  const winningHistory = useMemo(() => {
+    return winRes?.data || [];
+  }, [winRes?.data]);
   const totalWins = winRes?.count ?? winningHistory.length;
 
   // --- PAGINATION STATE ---
@@ -87,7 +90,7 @@ const MyWinningContests = () => {
         </div>
 
         {/* Stats Widget */}
-        <div className="stats shadow-lg bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+        <div className="stats shadow-lg bg-linear-to-r from-yellow-500 to-yellow-600 text-white">
           <div className="stat place-items-center">
             <div className="stat-title text-white/80 font-bold uppercase tracking-widest text-xs">
               Total Wins
@@ -135,7 +138,7 @@ const MyWinningContests = () => {
                       }}
                     />
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent"></div>
 
                     {/* Winner Badge */}
                     <div className="absolute top-4 left-4 badge badge-lg bg-yellow-500 text-white font-bold border-none shadow-md gap-2">
@@ -161,7 +164,7 @@ const MyWinningContests = () => {
                       </span>
                     </div>
 
-                    <h3 className="card-title text-xl font-bold mb-4 line-clamp-2 min-h-[3.5rem]">
+                    <h3 className="card-title text-xl font-bold mb-4 line-clamp-2 min-h-14">
                       {item.contestName}
                     </h3>
 

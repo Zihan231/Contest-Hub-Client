@@ -135,12 +135,12 @@ const ContestDetails = () => {
       <div className="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
-          {contest.winner && (
+          {contest?.winnerEmail && (
             <div className="card bg-linear-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 p-6 flex flex-row items-center gap-6">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full border-4 border-yellow-400 p-1">
                   <img
-                    src={contest.winner.photo}
+                    src={contest.winnerPhoto}
                     alt="Winner"
                     className="w-full h-full object-cover rounded-full"
                   />
@@ -152,7 +152,7 @@ const ContestDetails = () => {
                   Winner Declared!
                 </h3>
                 <p className="text-2xl font-black text-primary">
-                  {contest.winner.name}
+                  {contest.winnerName}
                 </p>
                 <p className="text-sm opacity-70">
                   Congratulations on winning ${contest.prizeMoney}!

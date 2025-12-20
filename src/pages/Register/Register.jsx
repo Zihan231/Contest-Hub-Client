@@ -119,7 +119,7 @@ const Register = () => {
   };
 
 
-  const handleGoogleRegister = async () => {
+const handleGoogleRegister = async () => {
   try {
     // 1) Google sign-in
     const result = await signInWithGoogle();
@@ -140,27 +140,48 @@ const Register = () => {
       photoURL: user.photoURL || "",
     };
 
-    // 3) Save to backend DB (wait for it)
-    const apiRes = await axios.post("/public/signUp", payload);
+    // 3) Save to backend DB with specific error handling
+    try {
+      // Attempt to register
+      await axios.post("/public/signUp", payload);
 
-    // (optional) check status
-    if (apiRes?.status !== 200 && apiRes?.status !== 201) {
-      throw new Error("Server responded with an unexpected status.");
+      // --- SCENARIO A: NEW ACCOUNT (Success 200/201) ---
+      SetUser?.(user);
+
+      await Swal.fire({
+        title: "Account created successfully!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      navigate(reDirectTo, { replace: true });
+
+    } catch (apiError) {
+      // --- SCENARIO B: ACCOUNT EXISTS (Error 409) ---
+      if (apiError.response && apiError.response.status === 409) {
+        
+        // Treat this as a successful login because they passed Google Auth
+        SetUser?.(user);
+
+        await Swal.fire({
+          title: "Welcome Back!",
+          text: "You are already registered. Logged in successfully.",
+          icon: "success", // Changed to Success icon
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        navigate(reDirectTo, { replace: true });
+        return; // Stop execution here to avoid hitting the outer catch
+      }
+
+      // If it is NOT a 409 (e.g., 500 server error), throw it to the main catch block
+      throw apiError;
     }
 
-    // 4) Update UI state
-    SetUser?.(user);
-
-    // 5) Success popup then redirect
-    await Swal.fire({
-      title: "Account created successfully!",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-    navigate(reDirectTo, { replace: true });
   } catch (err) {
+    // --- SCENARIO C: REAL ERRORS ---
     console.error("Google Sign Up Error:", err);
 
     const msg =

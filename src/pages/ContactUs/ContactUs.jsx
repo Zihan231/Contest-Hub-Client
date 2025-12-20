@@ -96,9 +96,9 @@ const ContactUs = () => {
                 <div className="pt-8 border-t border-base-content/10">
                     <h4 className="font-bold mb-4 opacity-80">Follow our updates</h4>
                     <div className="flex gap-4">
-                        <button className="btn btn-circle btn-outline hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-all"><FaTwitter /></button>
-                        <button className="btn btn-circle btn-outline hover:bg-blue-700 hover:border-blue-700 hover:text-white transition-all"><FaLinkedin /></button>
-                        <button className="btn btn-circle btn-outline hover:bg-gray-800 hover:border-gray-800 hover:text-white transition-all"><FaGithub /></button>
+                        <a href="https://x.com/Zihan_231" target="_blank" className="btn btn-circle btn-outline hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-all"><FaTwitter /></a>
+                        <a href="https://www.linkedin.com/in/zihan231" target="_blank" className="btn btn-circle btn-outline hover:bg-blue-700 hover:border-blue-700 hover:text-white transition-all"><FaLinkedin /></a>
+                        <a href="https://github.com/Zihan231" target="_blank" className="btn btn-circle btn-outline hover:bg-gray-800 hover:border-gray-800 hover:text-white transition-all"><FaGithub /></a>
                     </div>
                 </div>
             </div>

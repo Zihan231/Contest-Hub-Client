@@ -1,25 +1,54 @@
 import { useState } from "react";
-import { FaSearch, FaLightbulb, FaPenNib, FaCode, FaGamepad } from "react-icons/fa";
+import { useNavigate } from "react-router";
+import { FaSearch, FaPenNib, FaCode, FaBusinessTime, FaLayerGroup, FaPaintBrush } from "react-icons/fa";
+import { IoGameController } from "react-icons/io5";
+import { TbSpeakerphone } from "react-icons/tb";
 
 const Banner = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  //  Allowed tags/categories (your exact list)
+  const categories = [
+    { id: "Design", label: "Design", icon: <FaPaintBrush />, iconClass: "text-primary" },
+    { id: "Writing", label: "Writing", icon: <FaPenNib />, iconClass: "text-secondary" },
+    { id: "Coding", label: "Coding", icon: <FaCode />, iconClass: "text-blue-500" },
+    { id: "Business", label: "Business", icon: <FaBusinessTime />, iconClass: "text-yellow-500" },
+    { id: "Gaming", label: "Gaming", icon: <IoGameController />, iconClass: "text-purple-500" },
+    { id: "Marketing", label: "Marketing", icon: <TbSpeakerphone />, iconClass: "text-emerald-500" },
+  ];
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // TODO: Implement search logic (redirect to All Contests with query param)
-    console.log("Searching for:", searchTerm);
+    const q = searchTerm.trim();
+
+    //  Redirect to All Contests with query param
+    // Example: /all-contests?q=Coding
+    if (q) navigate(`/all-contests?q=${encodeURIComponent(q)}`);
+    else navigate(`/all-contests`);
+  };
+
+  const handleCategoryClick = (id) => {
+    // Optional redirect with tab/category param
+    // Example: /all-contests?tab=Design
+    if (id === "all") navigate(`/all-contests`);
+    else navigate(`/all-contests?tab=${encodeURIComponent(id)}`);
+
+    // Optional: put it in the search input
+    setSearchTerm(id === "all" ? "" : id);
   };
 
   return (
-    <div 
-      className="hero min-h-[600px] relative overflow-hidden" 
+    <div
+      className="hero min-h-[600px] relative overflow-hidden"
       style={{
-        backgroundImage: "url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop)",
-        backgroundAttachment: "fixed" // Parallax effect for premium feel
+        backgroundImage:
+          "url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop)",
+        backgroundAttachment: "fixed", // Parallax effect for premium feel
       }}
     >
       {/* Overlay: Uses theme colors (Primary + Secondary) with opacity */}
-      <div className="hero-overlay bg-gradient-to-r from-base-100/90 via-base-100/70 to-primary/20"></div>
+      <div className="hero-overlay bg-linear-to-r from-base-100/90 via-base-100/70 to-primary/20"></div>
 
       {/* Decorative Blobs (Abstract shapes for "Unique" look) */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -27,25 +56,23 @@ const Banner = () => {
 
       <div className="hero-content text-center text-neutral-content relative z-10">
         <div className="max-w-3xl">
-          
           {/* Main Headline */}
           <h1 className="mb-5 text-5xl md:text-7xl font-bold text-base-content tracking-tight">
             Showcase Skills. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
               Compete & Create.
             </span>
           </h1>
 
           {/* Subtext */}
           <p className="mb-8 text-lg md:text-xl text-base-content/70 font-medium">
-            Join the ultimate platform for creators. Participate in premier contests, 
+            Join the ultimate platform for creators. Participate in premier contests,
             win prizes, and build your portfolio today.
           </p>
 
           {/* Search Bar Container - Glassmorphism */}
           <div className="p-2 bg-base-100/30 backdrop-blur-md rounded-full border border-base-content/10 shadow-2xl max-w-2xl mx-auto">
             <form onSubmit={handleSearch} className="flex items-center gap-2">
-              
               {/* Search Icon */}
               <div className="pl-4 text-base-content/50">
                 <FaSearch />
@@ -61,28 +88,31 @@ const Banner = () => {
               />
 
               {/* Action Button */}
-              <button type="submit" className="btn btn-primary rounded-full px-8 text-white shadow-lg shadow-primary/30">
+              <button
+                type="submit"
+                className="btn btn-primary rounded-full px-8 text-white shadow-lg shadow-primary/30"
+              >
                 Search
               </button>
             </form>
           </div>
 
-          {/* Quick Tags / Categories */}
+          {/*  Quick Tags / Categories (same style as before) */}
           <div className="mt-8 flex flex-wrap justify-center gap-3 opacity-90">
-            <span className="badge badge-lg badge-outline border-base-content/20 text-base-content/70 gap-2 p-4 cursor-pointer hover:bg-base-content/5 transition-colors">
-              <FaLightbulb className="text-yellow-500" /> Business
-            </span>
-            <span className="badge badge-lg badge-outline border-base-content/20 text-base-content/70 gap-2 p-4 cursor-pointer hover:bg-base-content/5 transition-colors">
-              <FaPenNib className="text-secondary" /> Writing
-            </span>
-            <span className="badge badge-lg badge-outline border-base-content/20 text-base-content/70 gap-2 p-4 cursor-pointer hover:bg-base-content/5 transition-colors">
-              <FaCode className="text-blue-500" /> Development
-            </span>
-            <span className="badge badge-lg badge-outline border-base-content/20 text-base-content/70 gap-2 p-4 cursor-pointer hover:bg-base-content/5 transition-colors">
-              <FaGamepad className="text-purple-500" /> Gaming
-            </span>
+            {categories.map((cat) => (
+              <span
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && handleCategoryClick(cat.id)}
+                className="badge badge-lg badge-outline border-base-content/20 text-base-content/70 gap-2 p-4 cursor-pointer hover:bg-base-content/5 transition-colors"
+              >
+                <span className={cat.iconClass}>{cat.icon}</span>
+                {cat.label}
+              </span>
+            ))}
           </div>
-
         </div>
       </div>
     </div>

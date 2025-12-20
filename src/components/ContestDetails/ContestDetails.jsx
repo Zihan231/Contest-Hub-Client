@@ -5,9 +5,12 @@ import {
 import Swal from "sweetalert2";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/axiosSecure/useAxiosSecure";
+import { useContext } from "react";
+import AuthContext from "../../context/AuthContext/AuthContext";
 
 const ContestDetails = () => {
   const { id } = useParams();
+  const { user } = useContext(AuthContext) 
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -28,57 +31,93 @@ const ContestDetails = () => {
     ? new Date(contest.deadline) < new Date()
     : false;
 
-  // ✅ join contest mutation
+  // ✅ Helper to call your Payment API
+  const initiatePayment = async () => {
+    const paymentInfo = {
+      contestId: id,
+      cost: Number(contest.entryFee),
+      contestName: contest.contestName,
+      userEmail: user?.email,
+    };
+    const res = await axiosSecure.post("user/contest/payment", paymentInfo);
+    return res.data.url;
+  };
+
+  // ✅ Join Contest Mutation
   const joinMutation = useMutation({
     mutationFn: async () => {
+      // 1. Create the Registration Record (Pending)
       const payload = { contestID: id };
       const res = await axiosSecure.post(`user/contest/join`, payload);
       return res.data;
     },
     onSuccess: async () => {
-      // refresh contest details (participants count etc.)
       await queryClient.invalidateQueries({ queryKey: ["contestDetails", id] });
 
-      Swal.fire({
-        icon: "success",
-        title: "Registration confirmed!",
-        text: "Go to Dashboard → My Contests and complete your payment.",
-        showCancelButton: true,
-        confirmButtonText: "Go to My Contests",
-        cancelButtonText: "Stay here",
-      }).then((result) => {
-        if (result.isConfirmed) navigate("/dashboard/user/contest/participation");
-      });
+      // 2. Try to Redirect to Payment Immediately
+      try {
+        Swal.fire({
+          title: 'Processing Registration...',
+          text: 'Redirecting to payment gateway.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        const stripeUrl = await initiatePayment();
+        window.location.assign(stripeUrl); // 🚀 Redirect to Stripe
+
+      } catch (error) {
+        // 3. Fallback: If redirect fails, show the original Dashboard link
+        console.error("Payment redirect failed:", error);
+        Swal.close();
+        
+        Swal.fire({
+          icon: "success",
+          title: "Registration Successful",
+          text: "We couldn't redirect you to payment automatically. Please go to your Dashboard to pay.",
+          showCancelButton: true,
+          confirmButtonText: "Go to My Contests",
+          cancelButtonText: "Stay here",
+        }).then((result) => {
+          if (result.isConfirmed) navigate("/dashboard/user/contest/participation");
+        });
+      }
     },
     onError: (err) => {
       const status = err?.response?.status;
       const apiMsg = err?.response?.data?.message;
-
-      // optional (only if backend sends it)
       const paymentStatus = err?.response?.data?.paymentStatus;
 
       if (status === 409) {
-        // already registered
+        // Already registered logic
         if (String(paymentStatus || "").toLowerCase() === "paid") {
           Swal.fire({
             icon: "info",
             title: "Already registered",
-            text: "Your payment is already confirmed.",
+            text: "You have already joined and paid for this contest.",
           });
           return;
         }
 
+        // If registered but UNPAID, offer to pay now
         Swal.fire({
           icon: "warning",
-          title: "Already registered",
-          text: paymentStatus
-            ? `You already registered. Payment status: ${paymentStatus}. Go to Dashboard → My Contests to pay.`
-            : "You already registered. Go to Dashboard → My Contests to check payment status or pay.",
+          title: "Payment Pending",
+          text: "You are already registered but haven't paid yet. Would you like to pay now?",
           showCancelButton: true,
-          confirmButtonText: "Go to My Contests",
-          cancelButtonText: "OK",
-        }).then((result) => {
-          if (result.isConfirmed) navigate("/dashboard/user/contest/participation");
+          confirmButtonText: "Pay Now",
+          cancelButtonText: "Later",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const stripeUrl = await initiatePayment();
+              window.location.assign(stripeUrl);
+            } catch (e) {
+              navigate("/dashboard/user/contest/participation");
+            }
+          }
         });
         return;
       }
@@ -105,7 +144,7 @@ const ContestDetails = () => {
           alt={contest?.contestName}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-base-200 via-base-900/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-base-200 via-base-900/60 to-transparent"></div>
 
         <div className="absolute bottom-0 left-0 w-full p-8 md:p-12">
           <div className="max-w-7xl mx-auto">
@@ -118,7 +157,7 @@ const ContestDetails = () => {
               </div>
             ))}
 
-            <h1 className="text-4xl md:text-6xl font-black text-Black drop-shadow-lg mb-2">
+            <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-lg mb-2">
               {contest?.contestName}
             </h1>
 
@@ -136,7 +175,7 @@ const ContestDetails = () => {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
           {contest?.winnerEmail && (
-            <div className="card bg-linear-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 p-6 flex flex-row items-center gap-6">
+            <div className="card bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 p-6 flex flex-row items-center gap-6">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full border-4 border-yellow-400 p-1">
                   <img
@@ -244,7 +283,7 @@ const ContestDetails = () => {
                   disabled={joinMutation.isPending}
                   className="btn btn-primary w-full btn-lg shadow-lg shadow-primary/30 transform hover:scale-105 transition-transform"
                 >
-                  {joinMutation.isPending ? "Registering..." : "Register Now"}
+                  {joinMutation.isPending ? "Processing..." : "Register Now"}
                 </button>
               )}
 

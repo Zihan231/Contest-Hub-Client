@@ -5,8 +5,10 @@ import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaTrophy } from "react
 import Swal from "sweetalert2";
 import AuthContext from "../../context/AuthContext/AuthContext";
 import Loading from "../../components/Loading/Loading";
+import useAxios from "../../hooks/axios/useAxios";
 
 const Login = () => {
+  const axios = useAxios();
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithGoogle, SetUser, signInWithEmailPass } = useContext(AuthContext);
   const location = useLocation();
@@ -63,25 +65,61 @@ const Login = () => {
       });
   };
 
-  const handleGoogleLogin = () => {
-    signInWithGoogle()
-      .then((result) => {
-        Swal.fire({
-          title: "Login Successful !",
-          icon: "success",
-          draggable: true
-        }).then(
-          navigate(reDirectTo, { replace: true })
-        );
-        SetUser?.(result.user);
-      })
-      .catch(() => {
-        Swal.fire({
-          title: "Sign in Failed !!!",
+  const handleGoogleLogin = async () => {
+    try {
+      // 1) Google sign-in
+      const result = await signInWithGoogle();
+      const user = result?.user;
+
+      if (!user?.email) {
+        return Swal.fire({
+          title: "Sign Up Failed",
+          text: "Google account email not found.",
           icon: "error",
-          draggable: true
-        })
+        });
+      }
+
+      // 2) Prepare payload for DB
+      const payload = {
+        name: user.displayName || "Unnamed User",
+        email: user.email,
+        photoURL: user.photoURL || "",
+      };
+
+      // 3) Save to backend DB (wait for it)
+      const apiRes = await axios.post("/public/signUp", payload);
+
+      // (optional) check status
+      if (apiRes?.status !== 200 && apiRes?.status !== 201) {
+        throw new Error("Server responded with an unexpected status.");
+      }
+
+      // 4) Update UI state
+      SetUser?.(user);
+
+      // 5) Success popup then redirect
+      await Swal.fire({
+        title: "Account created successfully!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
       });
+
+      navigate(reDirectTo, { replace: true });
+    } catch (err) {
+      console.error("Google Sign Up Error:", err);
+
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Something went wrong";
+
+      Swal.fire({
+        title: "Sign Up Failed !!!",
+        text: msg,
+        icon: "error",
+      });
+    }
   };
   return (
     <div>

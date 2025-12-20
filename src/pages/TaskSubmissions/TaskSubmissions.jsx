@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useContext, useMemo, useState } from "react";
 import { FaTrophy, FaEye, FaClock, FaExternalLinkAlt } from "react-icons/fa";

@@ -5,6 +5,7 @@ import {
   FaCheckCircle,
   FaClock,
   FaTrophy,
+  FaUsers,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
@@ -27,14 +28,15 @@ const MyParticipatedContests = () => {
     queryKey: ["myContests", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosSecure.get(
-        `user/contest/participated/${user?.email}`
-      );
+      const res = await axiosSecure.get(`user/contest/participated/${user?.email}`);
       return res?.data?.data || [];
     },
   });
 
   const [selectedContest, setSelectedContest] = useState(null);
+
+  //  NEW: Participants modal state
+  const [participantsContest, setParticipantsContest] = useState(null);
 
   const {
     register,
@@ -43,7 +45,7 @@ const MyParticipatedContests = () => {
     formState: { errors },
   } = useForm();
 
-  // ✅ Submit Task mutation (optimistic update)
+  //  Submit Task mutation (optimistic update)
   const submitTaskMutation = useMutation({
     mutationFn: async (payload) => {
       const res = await axiosSecure.patch("user/contest/submit-task", payload);
@@ -53,15 +55,12 @@ const MyParticipatedContests = () => {
       const key = ["myContests", user?.email];
 
       await queryClient.cancelQueries({ queryKey: key });
-
       const previous = queryClient.getQueryData(key);
 
-      // Optimistically update cache
       queryClient.setQueryData(key, (old) => {
         if (!Array.isArray(old)) return old;
 
         return old.map((item) => {
-          // contestId in DB is ObjectId but comes as string from API usually
           const itemContestId = String(item?.contestId ?? "");
           const payloadContestId = String(payload?.contestID ?? "");
 
@@ -82,12 +81,10 @@ const MyParticipatedContests = () => {
       const key = ["myContests", user?.email];
       if (ctx?.previous) queryClient.setQueryData(key, ctx.previous);
 
-      const msg =
-        err?.response?.data?.message || err?.message || "Task submit failed";
+      const msg = err?.response?.data?.message || err?.message || "Task submit failed";
       Swal.fire("Failed", msg, "error");
     },
     onSuccess: () => {
-      // Keep UI instant; also refresh to ensure server truth
       queryClient.invalidateQueries({ queryKey: ["myContests", user?.email] });
     },
   });
@@ -106,13 +103,11 @@ const MyParticipatedContests = () => {
       const deadlineDate = item?.deadline ? new Date(item.deadline) : null;
 
       return {
-        id: rowId, // used in UI actions
-        contestID: contestId, // used for task submission payload
+        id: rowId,
+        contestID: contestId,
         _key: item?._id || rowId,
 
-        image:
-          item?.participantPhoto ||
-          "https://picsum.photos/seed/contesthub/100/100",
+        image: item?.contestImage || "https://picsum.photos/seed/contesthub/100/100",
         title: item?.contestName || "Untitled Contest",
 
         deadline: deadlineDate ? deadlineDate.toISOString().slice(0, 10) : "N/A",
@@ -139,7 +134,7 @@ const MyParticipatedContests = () => {
   const handlePay = async (contestId, price, title) => {
     try {
       const paymentInfo = {
-        contestId, // should be contest ObjectId string
+        contestId,
         cost: Number(price),
         contestName: title,
         userEmail: user?.email,
@@ -167,7 +162,7 @@ const MyParticipatedContests = () => {
 
       const payload = {
         taskLink: formData.taskLink,
-        contestID: selectedContest.contestID, // ✅ backend key
+        contestID: selectedContest.contestID,
       };
 
       await submitTaskMutation.mutateAsync(payload);
@@ -181,11 +176,43 @@ const MyParticipatedContests = () => {
         showConfirmButton: false,
       });
     } catch (e) {
-      // errors are handled in onError too, but safe fallback
       const msg = e?.response?.data?.message || "Task submit failed";
       Swal.fire("Failed", msg, "error");
     }
   };
+
+  // ✅ NEW: open Participants modal
+  const openParticipantsModal = (contest) => {
+    if (!contest?.contestID) {
+      return Swal.fire("Error", "Missing contestId", "error");
+    }
+    setParticipantsContest(contest);
+    document.getElementById("participants_modal").showModal();
+  };
+
+  const closeParticipantsModal = () => {
+    document.getElementById("participants_modal")?.close();
+    setParticipantsContest(null);
+  };
+
+  // ✅ NEW: fetch participants using POST (TanStack Query)
+  const {
+    data: participantsRes,
+    isLoading: isParticipantsLoading,
+    isError: isParticipantsError,
+    error: participantsError,
+  } = useQuery({
+    queryKey: ["contestParticipants", participantsContest?.contestID],
+    enabled: !!participantsContest?.contestID,
+    queryFn: async () => {
+      const res = await axiosSecure.post("user/contest/participants", {
+        contestId: participantsContest.contestID,
+      });
+      return res.data; // { message, participantsData: [...] }
+    },
+  });
+
+  const participantsData = participantsRes?.participantsData || [];
 
   return (
     <div className="w-full space-y-6">
@@ -275,25 +302,36 @@ const MyParticipatedContests = () => {
                     </td>
 
                     <td className="text-right">
-                      {contest.paymentStatus === "Pending" ? (
+                      <div className="flex justify-end gap-2 flex-wrap">
+                        {/* ✅ NEW: Participants button */}
                         <button
-                          onClick={() => handlePay(contest.contestID, contest.price, contest.title)}
-                          className="btn btn-sm btn-warning text-white gap-2"
+                          onClick={() => openParticipantsModal(contest)}
+                          className="btn btn-sm btn-outline gap-2"
                         >
-                          <FaCreditCard /> Pay
+                          <FaUsers /> Participants
                         </button>
-                      ) : contest.taskStatus === "Pending" ? (
-                        <button
-                          onClick={() => openSubmitModal(contest)}
-                          className="btn btn-sm btn-primary gap-2"
-                        >
-                          <FaFileUpload /> Submit
-                        </button>
-                      ) : (
-                        <button className="btn btn-sm btn-disabled opacity-50">
-                          Completed
-                        </button>
-                      )}
+
+                        {/* Existing action logic */}
+                        {contest.paymentStatus === "Pending" ? (
+                          <button
+                            onClick={() => handlePay(contest.contestID, contest.price, contest.title)}
+                            className="btn btn-sm btn-warning text-white gap-2"
+                          >
+                            <FaCreditCard /> Pay
+                          </button>
+                        ) : contest.taskStatus === "Pending" ? (
+                          <button
+                            onClick={() => openSubmitModal(contest)}
+                            className="btn btn-sm btn-primary gap-2"
+                          >
+                            <FaFileUpload /> Submit
+                          </button>
+                        ) : (
+                          <button className="btn btn-sm btn-disabled opacity-50">
+                            Completed
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -349,11 +387,18 @@ const MyParticipatedContests = () => {
 
                 <div className="w-full bg-base-200 rounded-full h-2 mb-4 overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-500 ${
-                      contest.taskStatus === "Submitted" ? "bg-success w-full" : "bg-primary w-1/2"
-                    }`}
+                    className={`h-full transition-all duration-500 ${contest.taskStatus === "Submitted" ? "bg-success w-full" : "bg-primary w-1/2"
+                      }`}
                   ></div>
                 </div>
+
+                {/* ✅ NEW: Participants button on mobile */}
+                <button
+                  onClick={() => openParticipantsModal(contest)}
+                  className="btn btn-sm btn-outline w-full mb-2 gap-2"
+                >
+                  <FaUsers /> View Participants
+                </button>
 
                 {contest.paymentStatus === "Pending" ? (
                   <button
@@ -429,6 +474,91 @@ const MyParticipatedContests = () => {
 
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
+        </form>
+      </dialog>
+
+      {/* NEW: PARTICIPANTS MODAL */}
+      <dialog id="participants_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box max-w-3xl">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <FaUsers className="text-primary" /> Participants
+              </h3>
+              <p className="text-sm text-base-content/60 mt-1">
+                Contest: <span className="font-bold">{participantsContest?.title || "—"}</span>
+              </p>
+            </div>
+            {/*  removed header close button */}
+          </div>
+
+          <div className="mt-4">
+            {isParticipantsLoading ? (
+              <div className="p-6 text-center text-base-content/70">
+                Loading participants...
+              </div>
+            ) : isParticipantsError ? (
+              <div className="alert alert-error">
+                <span>
+                  {participantsError?.response?.data?.message ||
+                    participantsError?.message ||
+                    "Failed to load participants."}
+                </span>
+              </div>
+            ) : participantsData.length === 0 ? (
+              <div className="p-6 text-center text-base-content/60">
+                No participants found.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="table table-zebra">
+                  <thead className="bg-base-200/50 text-base-content/60">
+                    <tr>
+                      <th>#</th>
+                      <th>Participant</th>
+                      <th>Email</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {participantsData.map((p, idx) => (
+                      <tr key={`${p.participantEmail}-${idx}`}>
+                        <th>{idx + 1}</th>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className="avatar">
+                              <div className="mask mask-squircle w-10 h-10 bg-base-300">
+                                <img
+                                  src={p.participantPhoto || "https://placehold.co/80x80?text=U"}
+                                  alt={p.participantName || "User"}
+                                  onError={(e) => {
+                                    e.currentTarget.src = "https://placehold.co/80x80?text=U";
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="font-bold">{p.participantName || "Unknown"}</div>
+                          </div>
+                        </td>
+                        <td className="font-mono text-xs">{p.participantEmail || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="modal-action">
+            {/*  Keep only this one close button */}
+            <button className="btn" type="button" onClick={closeParticipantsModal}>
+              Close
+            </button>
+          </div>
+        </div>
+
+        {/* backdrop click also closes, no visible button */}
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={closeParticipantsModal}>close</button>
         </form>
       </dialog>
     </div>

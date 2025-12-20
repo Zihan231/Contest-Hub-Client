@@ -13,7 +13,7 @@ const PopularContests = () => {
       return res.data;
     }
   });
-  // console.log(ContestsData?.data);
+  console.log(ContestsData?.data);
   const popularContests = ContestsData?.data;
   return (
     <section className="py-20 px-4 bg-base-200">

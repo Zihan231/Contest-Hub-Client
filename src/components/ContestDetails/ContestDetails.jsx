@@ -114,7 +114,7 @@ const ContestDetails = () => {
             try {
               const stripeUrl = await initiatePayment();
               window.location.assign(stripeUrl);
-            } catch (e) {
+            } catch {
               navigate("/dashboard/user/contest/participation");
             }
           }

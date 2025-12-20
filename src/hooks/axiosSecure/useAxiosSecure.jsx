@@ -4,7 +4,7 @@ import AuthContext from '../../context/AuthContext/AuthContext';
 
 
 const instance = axios.create({
-    baseURL: "http://localhost:3000/"
+    baseURL: "https://contesthub-server-dun.vercel.app/"
 })
 const useAxiosSecure = () => {
     const { user } = useContext(AuthContext);

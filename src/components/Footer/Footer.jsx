@@ -1,4 +1,6 @@
 import { FaFacebook, FaLinkedin, FaTwitter, FaGithub, FaTrophy } from "react-icons/fa";
+import { BsTwitterX } from "react-icons/bs";
+
 import { Link } from "react-router";
 
 const Footer = () => {
@@ -23,10 +25,10 @@ const Footer = () => {
             
             {/* Social Links */}
             <div className="flex gap-4 mt-2">
-                <a href="https://facebook.com" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaFacebook /></a>
-                <a href="https://linkedin.com" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaLinkedin /></a>
-                <a href="https://twitter.com" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaTwitter /></a>
-                <a href="https://github.com" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaGithub /></a>
+                <a href="https://www.facebook.com/Zihan231/" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaFacebook /></a>
+                <a href="https://www.linkedin.com/in/zihan231/" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaLinkedin /></a>
+                <a href="https://x.com/Zihan_231" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><BsTwitterX /></a>
+                <a href="https://github.com/Zihan231" target="_blank" className="btn btn-sm btn-circle btn-ghost text-xl hover:text-primary transition-colors"><FaGithub /></a>
             </div>
         </div>
 
@@ -36,8 +38,8 @@ const Footer = () => {
                 <h6 className="footer-title opacity-100 text-primary text-lg mb-2">Platform</h6>
                 <Link to="/all-contests" className="link link-hover hover:text-primary transition-colors">Browse Contests</Link>
                 <Link to="/leaderboard" className="link link-hover hover:text-primary transition-colors">Leaderboard</Link>
-                <Link to="/pricing" className="link link-hover hover:text-primary transition-colors">Pricing</Link>
-                <Link to="/winners" className="link link-hover hover:text-primary transition-colors">Winners</Link>
+                {/* <Link to="/pricing" className="link link-hover hover:text-primary transition-colors">Pricing</Link>
+                <Link to="/winners" className="link link-hover hover:text-primary transition-colors">Winners</Link> */}
             </nav>
             <nav className="flex flex-col gap-2">
                 <h6 className="footer-title opacity-100 text-primary text-lg mb-2">Company</h6>

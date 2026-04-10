@@ -7,7 +7,7 @@ import ErrorPage from "../components/ErrorPage/ErrorPage";
 import ContestDetails from "../components/ContestDetails/ContestDetails";
 import AllContests from "../pages/All-Contests/AllContests";
 import Leaderboard from "../pages/Leaderboard/Leaderboard";
-import AboutUs from "../pages/aboutUs/aboutUs";
+import AboutUs from "../pages/AboutUs/AboutUs";
 import ContactUs from "../pages/ContactUs/ContactUs";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import DashboardLayout from "../layouts/DashboardLayout/DashboardLayout";

@@ -46,7 +46,7 @@ const PopularContests = () => {
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
               transition={{
                 duration: 0.5,
-                delay: index * 0.1, 
+                delay: index * 0.1,
                 ease: "easeOut"
               }}
               viewport={{ once: true }}

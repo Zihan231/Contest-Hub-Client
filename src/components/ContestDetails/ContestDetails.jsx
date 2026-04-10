@@ -31,7 +31,7 @@ const ContestDetails = () => {
     ? new Date(contest.deadline) < new Date()
     : false;
 
-  // ✅ Helper to call your Payment API
+  // Helper to call Payment API
   const initiatePayment = async () => {
     const paymentInfo = {
       contestId: id,

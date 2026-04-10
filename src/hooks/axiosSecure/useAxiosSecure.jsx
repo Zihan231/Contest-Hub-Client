@@ -20,5 +20,4 @@ const useAxiosSecure = () => {
     return instance;
 }
 
-
 export default useAxiosSecure;
